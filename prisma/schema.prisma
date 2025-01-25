@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGODB_URI") // ใช้ ENV สำหรับ URI ของ MongoDB
+}
+
+model User {
+  id       String  @id @default(cuid()) @map("_id") // Maps to MongoDB _id
+  name     String
+  email    String  @unique
+  password String?
+  posts    Post[]  // One User can have many Posts
+}
+
+model Post {
+  id      String   @id @default(cuid()) @map("_id")
+  title   String
+  content String
+  image   String?  // ใช้สำหรับรูปภาพหลัก
+  userId  String   @map("_userId")
+  user    User     @relation(fields: [userId], references: [id]) 
+  images   String[] // สำหรับเก็บหลายภาพ
+  comments Comment[] // เพิ่มการเชื่อมโยงกับความคิดเห็น
+}
+
+model Comment {
+  id       String   @id @default(cuid()) @map("_id") // ใช้ String สำหรับ ID
+  content  String
+  postId   String   @map("_postId") // เปลี่ยนเป็น String
+  imageUrl String?  // สำหรับเก็บ URL ของภาพ
+  post     Post     @relation(fields: [postId], references: [id])
+}
+
