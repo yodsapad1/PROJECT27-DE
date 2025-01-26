@@ -13,24 +13,27 @@ model User {
   email    String  @unique
   password String?
   posts    Post[]  // One User can have many Posts
-}
-
-model Post {
-  id      String   @id @default(cuid()) @map("_id")
-  title   String
-  content String
-  image   String?  // ใช้สำหรับรูปภาพหลัก
-  userId  String   @map("_userId")
-  user    User     @relation(fields: [userId], references: [id]) 
-  images   String[] // สำหรับเก็บหลายภาพ
   comments Comment[] // เพิ่มการเชื่อมโยงกับความคิดเห็น
 }
 
-model Comment {
-  id       String   @id @default(cuid()) @map("_id") // ใช้ String สำหรับ ID
+model Post {
+  id       String   @id @default(cuid()) @map("_id") // MongoDB _id
+  title    String
   content  String
-  postId   String   @map("_postId") // เปลี่ยนเป็น String
-  imageUrl String?  // สำหรับเก็บ URL ของภาพ
-  post     Post     @relation(fields: [postId], references: [id])
+  userId   String   // ฟิลด์ที่ใช้ระบุผู้ใช้ที่โพสต์
+  user     User     @relation(fields: [userId], references: [id]) // การเชื่อมโยงกับ User
+  images    String[] // รองรับหลายภาพ
+  createdAt DateTime @default(now()) // วันที่สร้างโพสต์
+  updatedAt DateTime @updatedAt  // วันที่ปรับปรุงโพสต์ล่าสุด
+  comments Comment[] // ความคิดเห็นที่เกี่ยวข้องกับโพสต์
 }
 
+model Comment {
+  id       String   @id @default(cuid()) @map("_id") // MongoDB _id
+  content  String   // เนื้อหาของความคิดเห็น
+  postId   String   // ID ของโพสต์ที่ความคิดเห็นนี้เกี่ยวข้อง
+  post     Post     @relation(fields: [postId], references: [id]) // เชื่อมโยงกับ Post
+  userId   String   // ID ของผู้ใช้ที่ทำความคิดเห็น
+  user     User     @relation(fields: [userId], references: [id]) // เชื่อมโยงกับ User
+  createdAt DateTime @default(now()) // วันที่สร้างความคิดเห็น
+}
