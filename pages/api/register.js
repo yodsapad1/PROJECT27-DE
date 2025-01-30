@@ -1,7 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs'; // Ensure bcrypt library is installed
+import jwt from 'jsonwebtoken'; // Import jsonwebtoken
 
 const prisma = new PrismaClient(); // Initialize Prisma Client
+
+const SECRET_KEY = process.env.JWT_SECRET || 'your_secret_key'; // Set a secret key for JWT
 
 export default async function handler(req, res) {
     console.log('Register handler called with method:', req.method); // Log the method called
@@ -42,9 +45,13 @@ export default async function handler(req, res) {
             },
         });
 
+        // Create JWT token
+        const token = jwt.sign({ id: newUser.id, email: newUser.email }, SECRET_KEY, { expiresIn: '1h' });
+
         // Success response
         res.status(201).json({
             message: 'User registered successfully!',
+            token, // Include the JWT token in the response
             user: { id: newUser.id, name: newUser.name, email: newUser.email },
         });
     } catch (error) {

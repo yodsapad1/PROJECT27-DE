@@ -8,33 +8,46 @@ datasource db {
 }
 
 model User {
-  id       String  @id @default(cuid()) @map("_id") // Maps to MongoDB _id
+  id       String   @id @default(cuid()) @map("_id") // Maps to MongoDB _id
   name     String
-  email    String  @unique
-  password String?
-  posts    Post[]  // One User can have many Posts
-  comments Comment[] // เพิ่มการเชื่อมโยงกับความคิดเห็น
+  email    String   @unique
+  password String?  // Password can be optional or null
+  posts    Post[]   @relation("UserPosts") // One User can have many Posts
+  comments Comment[] @relation("UserComments") // One User can have many Comments
+  reports   Report[] @relation("UserReports") // One User can report many Posts
 }
 
 model Post {
-  id       String   @id @default(cuid()) @map("_id") // MongoDB _id
-  title    String
-  content  String
-  userId   String   // ฟิลด์ที่ใช้ระบุผู้ใช้ที่โพสต์
-  user     User     @relation(fields: [userId], references: [id]) // การเชื่อมโยงกับ User
-  images    String[] // รองรับหลายภาพ
-  createdAt DateTime @default(now()) // วันที่สร้างโพสต์
-  updatedAt DateTime @updatedAt  // วันที่ปรับปรุงโพสต์ล่าสุด
-  comments Comment[] // ความคิดเห็นที่เกี่ยวข้องกับโพสต์
+  id        String     @id @default(cuid()) @map("_id") // MongoDB _id
+  title     String
+  content   String
+  userId    String     // Field for the user who posted this
+  user      User       @relation(fields: [userId], references: [id], name: "UserPosts") // Link to User
+  images    String[]   // Support multiple images
+  createdAt DateTime   @default(now()) // Post creation date
+  updatedAt DateTime   @updatedAt // Last updated date
+  comments  Comment[]  @relation("PostComments") // Comments associated with this post
+  reports    Report[]   @relation("PostReports") // Reports associated with this post
 }
 
 model Comment {
-  id       String   @id @default(cuid()) @map("_id") // MongoDB _id
-  content  String   // เนื้อหาของความคิดเห็น
-  postId   String   // ID ของโพสต์ที่ความคิดเห็นนี้เกี่ยวข้อง
-  post     Post     @relation(fields: [postId], references: [id]) // เชื่อมโยงกับ Post
-  userId   String   // ID ของผู้ใช้ที่ทำความคิดเห็น
-  user     User     @relation(fields: [userId], references: [id]) // เชื่อมโยงกับ User
-  createdAt DateTime @default(now()) // วันที่สร้างความคิดเห็น
-  images  String[] // Multiple image URLs
+  id        String   @id @default(cuid()) @map("_id") // MongoDB _id
+  content   String   // Content of the comment
+  postId    String   // ID of the post this comment belongs to
+  post      Post     @relation(fields: [postId], references: [id], name: "PostComments") // Link to Post
+  userId    String   // ID of the user who made the comment
+  user      User     @relation(fields: [userId], references: [id], name: "UserComments") // Link to User
+  createdAt DateTime @default(now()) // Creation date of the comment
+  images    String[] // Multiple image URLs related to the comment
+}
+
+model Report {
+  id        String   @id @default(cuid()) @map("_id") // MongoDB _id
+  reason    String   // Reason for the report
+  userId    String   // ID of the user who reports
+  postId    String   // ID of the post being reported
+  createdAt DateTime @default(now()) // Creation date of the report
+
+  user      User     @relation(fields: [userId], references: [id], name: "UserReports") // Link to User
+  post      Post     @relation(fields: [postId], references: [id], name: "PostReports") // Link to Post
 }

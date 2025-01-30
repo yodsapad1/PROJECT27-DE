@@ -1,37 +1,50 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const cors = require('cors');
+// pages/api/user_report.js
+import { PrismaClient } from '@prisma/client';
 
-const app = express();
-const port = 3000;
+const prisma = new PrismaClient();
 
-app.use(cors());
-app.use(bodyParser.json());
+export const config = {
+  api: {
+    bodyParser: false, // Disable default bodyParser for form data
+  },
+};
 
-// ตัวแปรเก็บรายงานในรูปแบบ array
-let reports = [];
+// API handler for reporting posts
+export default async function handler(req, res) {
+  if (req.method === 'POST') {
+    const { fields } = await new Promise((resolve, reject) => {
+      const form = new IncomingForm();
+      form.parse(req, (err, fields) => {
+        if (err) return reject(err);
+        resolve({ fields });
+      });
+    });
 
-// API สำหรับเพิ่มรายงาน
-app.post('/report', (req, res) => {
-    const { title, description, date } = req.body;
+    const { reason, userId, postId } = fields;
 
-    const newReport = {
-        id: reports.length + 1,  // สร้าง ID สำหรับรายงาน
-        title,
-        description,
-        date: date || new Date().toISOString()  // ใช้วันที่ปัจจุบันถ้าไม่ระบุ
-    };
+    // Validate required fields
+    if (!reason || !userId || !postId) {
+      return res.status(400).json({ message: 'Reason, userId, and postId are required.' });
+    }
 
-    reports.push(newReport);  // เพิ่มรายงานเข้าไปใน array
-    res.status(201).json(newReport);  // ส่งกลับรายงานใหม่
-});
+    try {
+      // Create a new report
+      const newReport = await prisma.report.create({
+        data: {
+          reason,
+          userId,
+          postId,
+        },
+      });
 
-// API สำหรับแสดงรายงานทั้งหมด
-app.get('/reports', (req, res) => {
-    res.json(reports);  // ส่งกลับ array ของรายงาน
-});
+      return res.status(201).json(newReport); // Respond with the created report
+    } catch (error) {
+      console.error('Error creating report:', error);
+      return res.status(500).json({ message: 'Error creating report.', detail: error.message });
+    }
+  } else {
+    res.setHeader('Allow', ['POST']);
+    return res.status(405).end(`Method ${req.method} Not Allowed`);
+  }
+}
 
-// เริ่มต้นเซิร์ฟเวอร์
-app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
-});

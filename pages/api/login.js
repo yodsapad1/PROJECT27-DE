@@ -1,7 +1,9 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
+const SECRET_KEY = process.env.JWT_SECRET || 'your_secret_key'; // กำหนดกุญแจลับสำหรับ JWT
 
 export default async function handler(req, res) {
     console.log('Login handler called with method:', req.method); // Log the method called
@@ -36,8 +38,11 @@ export default async function handler(req, res) {
             return res.status(401).json({ message: 'Invalid email or password.' });
         }
 
+        // Create JWT token
+        const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '1h' });
+
         // Respond with success message and user info (omit password for security)
-        res.status(200).json({ message: 'Login successful!', user: { id: user.id, name: user.name, email: user.email } });
+        res.status(200).json({ message: 'Login successful!', token, user: { id: user.id, name: user.name, email: user.email } });
     } catch (error) {
         console.error('Error logging in:', error); // Log error details
         res.status(500).json({ message: 'Failed to log in.', detail: error.message });
