@@ -36,4 +36,5 @@ model Comment {
   userId   String   // ID ของผู้ใช้ที่ทำความคิดเห็น
   user     User     @relation(fields: [userId], references: [id]) // เชื่อมโยงกับ User
   createdAt DateTime @default(now()) // วันที่สร้างความคิดเห็น
+  images  String[] // Multiple image URLs
 }
