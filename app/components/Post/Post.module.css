@@ -1,0 +1,51 @@
+.postContainer {
+    width: 500px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin: 20px auto;
+    padding: 10px;
+  }
+  
+  .postHeader {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .profileImage {
+    border-radius: 50%;
+    margin-right: 10px;
+  }
+  
+  .username {
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .postImage {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+  }
+  
+  .image {
+    max-width: 100%;
+    border-radius: 5px;
+  }
+  
+  .postActions {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    font-size: 14px;
+    color: #555;
+  }
+  
+  .postCaption {
+    padding: 10px;
+    font-size: 14px;
+    color: #333;
+  }

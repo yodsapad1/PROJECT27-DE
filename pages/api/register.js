@@ -2,62 +2,57 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs'; // Ensure bcrypt library is installed
 import jwt from 'jsonwebtoken'; // Import jsonwebtoken
 
-const prisma = new PrismaClient(); // Initialize Prisma Client
+
+const prisma = new PrismaClient();
 
 const SECRET_KEY = process.env.JWT_SECRET || 'your_secret_key'; // Set a secret key for JWT
 
 export default async function handler(req, res) {
-    console.log('Register handler called with method:', req.method); // Log the method called
+    console.log('Register handler called with method:', req.method);
 
-    // Only allow POST requests
     if (req.method !== 'POST') {
         return res.status(405).json({ message: 'Only POST requests are allowed.' });
     }
 
-    const { name, email, password } = req.body; // Extract data from request body
+    // ❌ ผิด: `const body = await req.json();`
+    // ✅ ใช้ req.body แทน
+    const { name, email, password } = req.body;
 
-    // Check that all necessary data is provided
     if (!name || !email || !password) {
         return res.status(400).json({ message: 'Name, email, and password are required.' });
     }
 
     try {
-        console.log('Checking for existing user with email:', email); // Log the email being checked
+        console.log('Checking for existing user with email:', email);
 
-        // Check if email is already registered
         const existingUser = await prisma.user.findUnique({
-            where: { email: email }, // Ensure 'user' matches the model name in the schema
+            where: { email },
         });
 
         if (existingUser) {
             return res.status(409).json({ message: 'Email already registered.' });
         }
 
-        // Hash the password before saving
-        const hashedPassword = await bcrypt.hash(password, 10); // Hashing with bcrypt
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create the new user in the database
         const newUser = await prisma.user.create({
-            data: {
-                name,
-                email,
-                password: hashedPassword, // Store the hashed password
-            },
+            data: { name, email, password: hashedPassword },
         });
 
         // Create JWT token
         const token = jwt.sign({ id: newUser.id, email: newUser.email }, SECRET_KEY, { expiresIn: '1h' });
 
         // Success response
+
         res.status(201).json({
             message: 'User registered successfully!',
             token, // Include the JWT token in the response
             user: { id: newUser.id, name: newUser.name, email: newUser.email },
         });
     } catch (error) {
-        console.error('Error registering user:', error); // Log the error message
+        console.error('Error registering user:', error);
         res.status(500).json({ message: 'Failed to register user.', detail: error.message });
     } finally {
-        await prisma.$disconnect(); // Always disconnect the Prisma client
+        await prisma.$disconnect();
     }
 }
