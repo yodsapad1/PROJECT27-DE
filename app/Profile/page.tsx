@@ -1,59 +1,59 @@
-// หน้า Profile (page.tsx)
 'use client';
 
-import { useState, useEffect } from 'react';
-import styles from './Profile.module.css';
-import Sidebar from '../components/Sidebar/Sidebar';
+import { signOut, useSession } from "next-auth/react";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Sidebar from "../components/Sidebar/Sidebar";
+import styles from "./Profile.module.css";
 
 export default function Profile() {
-  const [userData, setUserData] = useState(null);
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
-  // หน้า Profile (เพิ่มฟังก์ชันออกจากระบบ)
-const handleLogout = () => {
-  localStorage.removeItem('authToken');
-  localStorage.removeItem('user');
-  window.location.href = '/Login'; // เปลี่ยนหน้าไปที่หน้า Login
-};
-
+  // Redirect to login if not authenticated
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user')); // ดึงข้อมูลจาก localStorage
-    if (user) {
-      setUserData(user);
-    } else {
-      // ถ้าไม่มีข้อมูลผู้ใช้ ให้ไปหน้า login
-      window.location.href = '/login';
+    if (status === "unauthenticated") {
+      router.push("/login");
     }
-  }, []);
+  }, [status, router]);
+
+  if (status === "loading") {
+    return <p>Loading...</p>;
+  }
+
+  if (!session || !session.user) {
+    return null; // หรือสามารถแสดงข้อความให้ผู้ใช้ทราบ
+  }
+
+  const handleLogout = () => {
+    signOut({ callbackUrl: "/login" });
+  };
 
   return (
     <div className={styles.profileContainer}>
       <Sidebar />
       <div className={styles.profileWrapper}>
-        {userData ? (
-          <>
-            <div className={styles.avatarSection}>
-              <img src={userData.avatar || '/assets/default-avatar.jpg'} alt="User Avatar" className={styles.avatarImage} />
-            </div>
-
-            <div className={styles.profileInfo}>
-              <h2 className={styles.profileTitle}>Profile</h2>
-              <div className={styles.infoGroup}>
-                <label>Name</label>
-                <p>{userData.name}</p>
-              </div>
-
-              <div className={styles.infoGroup}>
-                <label>Email</label>
-                <p>{userData.email}</p>
-              </div>
-
-            </div>
-          </>
-          
-        ) : (
-          <p>Loading...</p>
-        )}
-        <button onClick={handleLogout}>Logout</button>
+        <div className={styles.avatarSection}>
+          <img
+            src={session.user.image || "/assets/default-avatar.jpg"}
+            alt="User Avatar"
+            className={styles.avatarImage}
+          />
+        </div>
+        <div className={styles.profileInfo}>
+          <h2 className={styles.profileTitle}>Profile</h2>
+          <div className={styles.infoGroup}>
+            <label>Name</label>
+            <p>{session.user.name}</p>
+          </div>
+          <div className={styles.infoGroup}>
+            <label>Email</label>
+            <p>{session.user.email}</p>
+          </div>
+        </div>
+        <button onClick={handleLogout} className={styles.logoutButton}>
+          Logout
+        </button>
       </div>
     </div>
   );

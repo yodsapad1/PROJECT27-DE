@@ -10,6 +10,10 @@ export default async function handler(req, res) {
     try {
       const { userId } = req.body; // รับ userId จาก body
 
+      if (!userId) {
+        return res.status(400).json({ message: 'User ID is required in the request body.' });
+      }
+
       // ตรวจสอบว่ามีโพสต์อยู่จริงหรือไม่
       const existingPost = await prisma.post.findUnique({ where: { id: String(id) } });
       if (!existingPost) {
@@ -23,11 +27,15 @@ export default async function handler(req, res) {
 
       // ลบโพสต์
       await prisma.post.delete({ where: { id: String(id) } });
-      return res.status(204).send('Post deleted successfully.'); // ส่งคืน 204 No Content
+      // ส่งคืน 204 No Content โดยไม่ส่งข้อความกลับไป
+      return res.status(204).end();
 
     } catch (error) {
       console.error('Error deleting post:', error);
       return res.status(500).json({ message: 'Failed to delete post.', detail: error.message });
+    } finally {
+      // ถ้าต้องการ disconnect Prisma (ขึ้นอยู่กับการออกแบบโปรเจค)
+      // await prisma.$disconnect();
     }
   } else {
     res.setHeader('Allow', ['DELETE']);

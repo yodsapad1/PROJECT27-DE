@@ -10,7 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@prisma/client": "^6.2.1",
+    "@prisma/client": "^6.3.1",
     "bcryptjs": "^2.4.3",
     "connect-mongo": "^5.1.0",
     "dotenv": "^16.4.7",
@@ -21,6 +21,7 @@
     "mongoose": "^8.9.4",
     "multer": "^1.4.5-lts.1",
     "next": "^15.1.6",
+    "next-auth": "^4.24.11",
     "next-connect": "^1.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"

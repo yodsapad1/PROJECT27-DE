@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { signIn } from "next-auth/react";
+import Link from "next/link";
 import styles from './SignUp.module.css';
 
 export default function SignUp() {
@@ -22,12 +24,10 @@ export default function SignUp() {
     }
 
     try {
-      console.log('📢 Sending request to /api/register'); // Debug
+      // ส่งข้อมูลไปยัง API /api/register เพื่อสร้างผู้ใช้ใหม่
       const response = await fetch('/api/register', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email,
           name: username,
@@ -36,21 +36,25 @@ export default function SignUp() {
       });
 
       const data = await response.json();
-      console.log('✅ Response:', data); // Debug ดูผลลัพธ์ API
 
       if (response.ok) {
-        const user = data.user; // เก็บข้อมูลผู้ใช้
-      
-        // ✅ เก็บ Token และข้อมูลผู้ใช้ใน localStorage
-        localStorage.setItem('authToken', data.token);
-        localStorage.setItem('user', JSON.stringify(user)); // เก็บข้อมูลผู้ใช้
-      
-        // ✅ เปลี่ยนไปหน้า Home หรือ Profile หลังจากล็อกอินสำเร็จ
-        router.push('/profile'); // หรือหน้าอื่น ๆ ที่ต้องการ
+        setMessage('Signup successful! Logging in...');
+        // หลังจากสมัครสมาชิกสำเร็จ ใช้ signIn ของ NextAuth เพื่อล็อกอินอัตโนมัติ
+        const result = await signIn("credentials", {
+          redirect: false,
+          email,
+          password,
+        });
+        if (result.error) {
+          setError(result.error);
+        } else {
+          router.push('/');
+        }
+      } else {
+        setError(data.message || 'Signup failed. Please try again.');
       }
-      setMessage(data.message || 'Signup successful! Redirecting...');
     } catch (err) {
-      console.error('❌ Error:', err);
+      console.error('Error:', err);
       setError('An unexpected error occurred.');
     }
   };
@@ -60,11 +64,9 @@ export default function SignUp() {
       <div className={styles.leftSide}>
         <img src="/assets/11.jpg" alt="Sign Up" className={styles.signupImage} />
       </div>
-
       <div className={styles.rightSide}>
         <div className={styles.formWrapper}>
           <h2 className={styles.title}>Create Your Account</h2>
-
           <div className={styles.inputGroup}>
             <label className={styles.labelLeft}>Email</label>
             <input
@@ -76,7 +78,6 @@ export default function SignUp() {
               required
             />
           </div>
-
           <div className={styles.inputGroup}>
             <label className={styles.labelLeft}>Username</label>
             <input
@@ -88,7 +89,6 @@ export default function SignUp() {
               required
             />
           </div>
-
           <div className={styles.inputGroup}>
             <label className={styles.labelLeft}>Password</label>
             <input
@@ -100,17 +100,14 @@ export default function SignUp() {
               required
             />
           </div>
-
           <button type="button" className={styles.signupButton} onClick={signUp}>
             Sign Up
           </button>
-
           {message && <p style={{ color: 'green' }}>{message}</p>}
           {error && <p style={{ color: 'red' }}>{error}</p>}
-
           <div className={styles.loginLink}>
             <p>
-              Have an account? <a href="/Login">Log in</a>
+              Have an account? <Link href="/Login">Log in</Link>
             </p>
           </div>
         </div>

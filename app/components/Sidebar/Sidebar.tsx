@@ -72,11 +72,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
     formData.append("images", imageBlob, "image.jpg");
 
     try {
-      const response = await fetch("/api/user_post/1", {
+      const response = await fetch("/api/user_post", {
         method: "POST",
+        credentials: "include",
         body: formData,
       });
-
+      
       if (response.ok) {
         alert("Post shared successfully!");
         onNewPost(); // ✅ เรียกใช้ props เพื่อแจ้งว่ามีโพสต์ใหม่
