@@ -1,51 +1,99 @@
 .postContainer {
-    width: 500px;
-    background: #fff;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    margin: 20px auto;
-    padding: 10px;
-  }
-  
-  .postHeader {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .profileImage {
-    border-radius: 50%;
-    margin-right: 10px;
-  }
-  
-  .username {
-    font-weight: bold;
-    color: #333;
-  }
-  
-  .postImage {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    margin-top: 10px;
-  }
-  
-  .image {
-    max-width: 100%;
-    border-radius: 5px;
-  }
-  
-  .postActions {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px;
-    font-size: 14px;
-    color: #555;
-  }
-  
-  .postCaption {
-    padding: 10px;
-    font-size: 14px;
-    color: #333;
-  }
+  width: 500px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  margin: 20px auto;
+  padding: 10px;
+  position: relative;
+}
+
+.postHeader {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  justify-content: space-between;
+}
+
+.profileImage {
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.username {
+  font-weight: bold;
+  color: #333;
+  flex-grow: 1;
+}
+
+.menuButton {
+  background: transparent;
+  border: none;
+  font-size: 2rem; /* ทำให้ไอคอน 3 จุด ใหญ่ขึ้น */
+  cursor: pointer;
+}
+
+.postImage {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.image {
+  max-width: 100%;
+  border-radius: 5px;
+}
+
+.postActions {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  font-size: 14px;
+  color: #555;
+}
+
+.postCaption {
+  padding: 10px;
+  font-size: 14px;
+  color: #333;
+}
+
+/* Modal overlay สำหรับแสดงเมนูแก้ไข/ลบ */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  min-width: 200px;
+}
+
+.modalButton {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  background-color: #f7f7f7;
+  border-radius: 5px;
+}
+
+.modalButton:hover {
+  background-color: #e0e0e0;
+}

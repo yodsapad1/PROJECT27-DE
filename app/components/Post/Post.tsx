@@ -1,20 +1,21 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import styles from "./Post.module.css";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import EditPostModal from "./EditPostModal"; // นำเข้าคอมโพเนนต์ EditPostModal
 
-// ปรับ interface ให้รวมข้อมูลเกี่ยวกับโพสต์และการลบโพสต์
 interface PostProps {
-  id: string;              // ID ของโพสต์ (จาก cuid())
-  username: string;        // ชื่อผู้ใช้ที่โพสต์
-  userImage: string;       // รูปโปรไฟล์ของผู้ใช้
-  postImage: string;       // รูปภาพของโพสต์
-  caption: string;         // คำบรรยายโพสต์
-  likes: number;           // จำนวนไลค์
-  comments: number;        // จำนวนคอมเมนต์
-  ownerId: string;         // ID ของเจ้าของโพสต์ (จากฐานข้อมูล)
-  currentUserId: string;   // ID ของผู้ใช้ปัจจุบัน (จาก authentication หรือ context)
-  onDelete?: () => void;   // Callback เมื่อโพสต์ถูกลบแล้ว (เพื่อรีเฟรชรายการโพสต์)
+  id: string;
+  username: string;
+  userImage: string;
+  postImage: string;
+  caption: string;
+  likes: number;
+  comments: number;
+  ownerId: string;
+  currentUserId: string;
+  onDelete?: () => void;
 }
 
 const Post: React.FC<PostProps> = ({
@@ -29,6 +30,14 @@ const Post: React.FC<PostProps> = ({
   currentUserId,
   onDelete,
 }) => {
+  const router = useRouter();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const toggleMenu = () => {
+    setMenuOpen((prev) => !prev);
+  };
+
   const handleDelete = async () => {
     const confirmed = confirm("คุณแน่ใจหรือไม่ที่จะลบโพสต์นี้?");
     if (!confirmed) return;
@@ -36,15 +45,14 @@ const Post: React.FC<PostProps> = ({
     try {
       const response = await fetch(`/api/user_delete_post/${id}`, {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ userId: currentUserId }),
       });
 
       if (response.status === 204) {
         alert("ลบโพสต์เรียบร้อยแล้ว");
-        if (onDelete) onDelete(); // รีเฟรชรายการโพสต์
+        if (onDelete) onDelete();
       } else {
         const data = await response.json();
         alert(data.message || "เกิดข้อผิดพลาดในการลบโพสต์");
@@ -53,6 +61,13 @@ const Post: React.FC<PostProps> = ({
       console.error("Error deleting post:", error);
       alert("เกิดข้อผิดพลาดในการลบโพสต์");
     }
+    setMenuOpen(false);
+  };
+
+  const handleEdit = () => {
+    // เปิด modal แก้ไขโพสต์
+    setIsEditModalOpen(true);
+    setMenuOpen(false);
   };
 
   return (
@@ -66,6 +81,12 @@ const Post: React.FC<PostProps> = ({
           className={styles.profileImage}
         />
         <span className={styles.username}>{username}</span>
+        <div className={styles.menuContainer}>
+          <button onClick={toggleMenu} className={styles.menuButton}>
+            ⋮
+          </button>
+          
+        </div>
       </div>
       <div className={styles.postImage}>
         {postImage ? (
@@ -92,12 +113,59 @@ const Post: React.FC<PostProps> = ({
       <div className={styles.postCaption}>
         <strong>{username}</strong> {caption}
       </div>
-      {/* แสดงปุ่มลบโพสต์เฉพาะเมื่อผู้ใช้ปัจจุบันเป็นเจ้าของโพสต์ */}
-      {currentUserId === ownerId && (
-        <button onClick={handleDelete} className={styles.deleteButton}>
-          ลบโพสต์
-        </button>
+
+      {/* แสดง Edit Modal เมื่อเปิด */}
+      {isEditModalOpen && (
+        <EditPostModal
+          postId={id}
+          initialCaption={caption}
+          initialImage={postImage}
+          closeModal={() => setIsEditModalOpen(false)}
+          onPostUpdated={onDelete ? onDelete : () => {}}
+        />
       )}
+
+      {menuOpen && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            {currentUserId === ownerId && (
+              <>
+                <button onClick={handleDelete} className={styles.modalButton}>
+                  Delete
+                </button>
+                <button onClick={handleEdit} className={styles.modalButton}>
+                  Edit
+                </button>
+              </>
+            )}
+            <button onClick={() => setMenuOpen(false)} className={styles.modalButton}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {menuOpen && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            {currentUserId === ownerId && (
+              <>
+                <button onClick={handleDelete} className={styles.modalButton}>
+                  Delete
+                </button>
+                <button onClick={handleEdit} className={styles.modalButton}>
+                  Edit
+                </button>
+              </>
+            )}
+            <button onClick={() => setMenuOpen(false)} className={styles.modalButton}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+
     </div>
   );
 };
