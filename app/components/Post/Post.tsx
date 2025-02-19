@@ -3,7 +3,8 @@ import React, { useState } from "react";
 import styles from "./Post.module.css";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import EditPostModal from "./EditPostModal"; // นำเข้าคอมโพเนนต์ EditPostModal
+import EditPostModal from "./EditPostModal";
+import ReportModal from "./ReportModal"; // นำเข้า ReportModal
 
 interface PostProps {
   id: string;
@@ -33,6 +34,7 @@ const Post: React.FC<PostProps> = ({
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   const toggleMenu = () => {
     setMenuOpen((prev) => !prev);
@@ -65,8 +67,12 @@ const Post: React.FC<PostProps> = ({
   };
 
   const handleEdit = () => {
-    // เปิด modal แก้ไขโพสต์
     setIsEditModalOpen(true);
+    setMenuOpen(false);
+  };
+
+  const handleReport = () => {
+    setIsReportModalOpen(true);
     setMenuOpen(false);
   };
 
@@ -85,7 +91,6 @@ const Post: React.FC<PostProps> = ({
           <button onClick={toggleMenu} className={styles.menuButton}>
             ⋮
           </button>
-          
         </div>
       </div>
       <div className={styles.postImage}>
@@ -114,7 +119,30 @@ const Post: React.FC<PostProps> = ({
         <strong>{username}</strong> {caption}
       </div>
 
-      {/* แสดง Edit Modal เมื่อเปิด */}
+      {menuOpen && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            {currentUserId === ownerId ? (
+              <>
+                <button onClick={handleDelete} className={styles.modalButton}>
+                  Delete
+                </button>
+                <button onClick={handleEdit} className={styles.modalButton}>
+                  Edit
+                </button>
+              </>
+            ) : (
+              <button onClick={handleReport} className={styles.modalButton}>
+                Report
+              </button>
+            )}
+            <button onClick={() => setMenuOpen(false)} className={styles.modalButton}>
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
       {isEditModalOpen && (
         <EditPostModal
           postId={id}
@@ -125,47 +153,16 @@ const Post: React.FC<PostProps> = ({
         />
       )}
 
-      {menuOpen && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
-            {currentUserId === ownerId && (
-              <>
-                <button onClick={handleDelete} className={styles.modalButton}>
-                  Delete
-                </button>
-                <button onClick={handleEdit} className={styles.modalButton}>
-                  Edit
-                </button>
-              </>
-            )}
-            <button onClick={() => setMenuOpen(false)} className={styles.modalButton}>
-              Cancel
-            </button>
-          </div>
-        </div>
+      {isReportModalOpen && (
+        <ReportModal
+          postId={id}
+          currentUserId={currentUserId}
+          closeModal={() => setIsReportModalOpen(false)}
+          onReportSubmitted={() => {
+            // อาจรีเฟรชโพสต์หรือแสดงข้อความอื่นๆ
+          }}
+        />
       )}
-
-      {menuOpen && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modalContent}>
-            {currentUserId === ownerId && (
-              <>
-                <button onClick={handleDelete} className={styles.modalButton}>
-                  Delete
-                </button>
-                <button onClick={handleEdit} className={styles.modalButton}>
-                  Edit
-                </button>
-              </>
-            )}
-            <button onClick={() => setMenuOpen(false)} className={styles.modalButton}>
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
-
-
     </div>
   );
 };

@@ -3,14 +3,14 @@
 import { signOut, useSession } from "next-auth/react";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Sidebar from "../components/Sidebar/Sidebar";
 import styles from "./Profile.module.css";
+import { FaCog } from "react-icons/fa"; // ไอคอนสำหรับตั้งค่า
+import Sidebar from "../components/Sidebar/Sidebar";
 
 export default function Profile() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
-  // Redirect to login if not authenticated
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
@@ -22,38 +22,47 @@ export default function Profile() {
   }
 
   if (!session || !session.user) {
-    return null; // หรือสามารถแสดงข้อความให้ผู้ใช้ทราบ
+    return null;
   }
 
-  const handleLogout = () => {
-    signOut({ callbackUrl: "/login" });
+  const handleEditProfile = () => {
+    router.push("/edit-profile");
   };
 
   return (
     <div className={styles.profileContainer}>
       <Sidebar />
-      <div className={styles.profileWrapper}>
-        <div className={styles.avatarSection}>
-          <img
-            src={session.user.image || "/assets/default-avatar.jpg"}
-            alt="User Avatar"
-            className={styles.avatarImage}
-          />
-        </div>
-        <div className={styles.profileInfo}>
-          <h2 className={styles.profileTitle}>Profile</h2>
-          <div className={styles.infoGroup}>
-            <label>Name</label>
-            <p>{session.user.name}</p>
+      <div className={styles.profileHeader}>
+        {/* Avatar */}
+        <img
+          src={session.user.image || "/assets/default-avatar.jpg"}
+          alt="User Avatar"
+          className={styles.avatarImage}
+        />
+
+        {/* ข้อมูลผู้ใช้ */}
+        <div className={styles.userInfo}>
+          <div className={styles.userTop}>
+            <h2>{session.user.name || "NAME"}</h2>
+            <button onClick={handleEditProfile} className={styles.editButton}>
+              Edit profile
+            </button>
+            <FaCog className={styles.settingsIcon} />
           </div>
-          <div className={styles.infoGroup}>
-            <label>Email</label>
-            <p>{session.user.email}</p>
+          <p>{session.user.email || "Email"}</p>
+          <div className={styles.stats}>
+            <span>0 post</span>
+            <span>0 follower</span>
+            <span>0 following</span>
           </div>
         </div>
-        <button onClick={handleLogout} className={styles.logoutButton}>
-          Logout
-        </button>
+      </div>
+
+      {/* Navigation Bar */}
+      <div className={styles.navbar}>
+        <span className={styles.activeTab}>POSTS</span>
+        <span>SAVED</span>
+        <span>TAGGED</span>
       </div>
     </div>
   );

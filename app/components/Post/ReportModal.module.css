@@ -1,0 +1,88 @@
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .modalContent {
+    background: #fff;
+    padding: 20px;
+    width: 400px;
+    max-width: 90%;
+    border-radius: 8px;
+    text-align: center;
+  }
+  
+  .modalTitle {
+    margin-bottom: 10px;
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  .modalSubtitle {
+    margin-bottom: 15px;
+    font-size: 1rem;
+    color: #555;
+  }
+  
+  .optionsContainer {
+    text-align: left;
+    margin-bottom: 15px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  
+  .optionLabel {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+  
+  .optionLabel input {
+    margin-right: 8px;
+  }
+  
+  .errorText {
+    color: red;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  
+  .buttonContainer {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 15px;
+  }
+  
+  .submitButton {
+    background-color: #e74c3c;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .cancelButton {
+    background-color: #bdc3c7;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .footerText {
+    margin-top: 15px;
+    font-size: 12px;
+    color: #888;
+  }
+  
