@@ -1,40 +1,35 @@
-// schema.prisma
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "mongodb"
-  url      = env("MONGODB_URI")  // ใช้ ENV สำหรับ URI ของ MongoDB
+  url      = env("MONGODB_URI") // ใช้ ENV สำหรับ URI ของ MongoDB
 }
 
-// User model
 model User {
-  id       String    @id @default(cuid()) @map("_id") // Maps to MongoDB _id
+  id       String   @id @default(cuid()) @map("_id") // Maps to MongoDB _id
   name     String
-  email    String    @unique
-  password String?   // Password can be optional or null
-  posts    Post[]    @relation("UserPosts") // One User can have many Posts
+  email    String   @unique
+  password String?  // Password can be optional or null
+  posts    Post[]   @relation("UserPosts") // One User can have many Posts
   comments Comment[] @relation("UserComments") // One User can have many Comments
-  reports  Report[]  @relation("UserReports") // One User can report many Posts
+  reports   Report[] @relation("UserReports") // One User can report many Posts
 }
 
-// Post model
 model Post {
   id        String     @id @default(cuid()) @map("_id") // MongoDB _id
   title     String
   content   String
-  userId    String
-  user      User       @relation(fields: [userId], references: [id], name: "UserPosts")
-  images    String[]
-  createdAt DateTime   @default(now()) // ต้องมีค่า
-  updatedAt DateTime   @updatedAt
-  comments  Comment[]  @relation("PostComments") // ความเห็นที่เกี่ยวข้องกับโพสต์นี้
-  reports   Report[]   @relation("PostReports") // รายงานที่เกี่ยวข้องกับโพสต์นี้
+  userId    String     // Field for the user who posted this
+  user      User       @relation(fields: [userId], references: [id], name: "UserPosts") // Link to User
+  images    String[]   // Support multiple images
+  createdAt DateTime   @default(now()) // Post creation date
+  updatedAt DateTime   @updatedAt // Last updated date
+  comments  Comment[]  @relation("PostComments") // Comments associated with this post
+  reports    Report[]   @relation("PostReports") // Reports associated with this post
 }
 
-// Comment model
 model Comment {
   id        String   @id @default(cuid()) @map("_id") // MongoDB _id
   content   String   // Content of the comment
