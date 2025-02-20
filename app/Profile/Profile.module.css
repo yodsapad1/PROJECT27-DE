@@ -1,0 +1,93 @@
+/* คอนเทนเนอร์หลัก */
+.profileContainer {
+  width: 60%;
+  margin: 50px auto;
+  font-family: Arial, sans-serif;
+}
+
+/* ส่วนหัวโปรไฟล์ */
+.profileHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+/* รูปโปรไฟล์ */
+.avatarImage {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 20px;
+}
+
+/* ส่วนข้อมูลผู้ใช้ */
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+/* แถวบน (ชื่อ + ปุ่มแก้ไข + ตั้งค่า) */
+.userTop {
+  display: flex;
+  align-items: center;
+  gap: 35px; /* เพิ่มระยะห่าง */
+}
+
+.userTop h2 {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-right: 90px; /* เพิ่มระยะห่างระหว่างชื่อกับปุ่ม */
+}
+
+/* ปุ่มแก้ไข */
+.editButton {
+  padding: 5px 12px;
+  font-size: 0.9rem;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.editButton:hover {
+  background-color: #f0f0f0;
+}
+
+/* ไอคอนตั้งค่า */
+.settingsIcon {
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+/* สถิติผู้ใช้ */
+.stats {
+  display: flex;
+  gap: 20px; /* เพิ่มระยะห่างระหว่าง 0 post, 0 follower, 0 following */
+  font-size: 0.9rem;
+  margin-top: 10px; /* เพิ่มระยะห่างระหว่างอีเมลกับสถิติ */
+}
+
+/* Navbar */
+.navbar {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 20px; /* เพิ่มระยะห่างระหว่างสถิติกับแท็บ */
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.navbar span {
+  cursor: pointer;
+  color: #888;
+}
+
+.activeTab {
+  color: black;
+  border-bottom: 2px solid black;
+  padding-bottom: 5px;
+}

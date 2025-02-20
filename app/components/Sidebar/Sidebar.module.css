@@ -1,0 +1,402 @@
+.sidebar {
+  background-color: #fefefe;
+  width: 280px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 2rem 1rem;
+  transition: width 0.3s ease;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  border-right: 2px solid #ebebeb; /* เพิ่มเส้นขอบด้านขวา */
+}
+
+.sidebar.collapsed {
+  width: 80px;
+  padding: 2rem 0.5rem;
+}
+
+.sidebarNav ul {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebarNav ul li {
+  margin-bottom: 1rem; /* เพิ่มระยะห่างระหว่างเมนู */
+}
+
+.logo {
+  height: 60px;
+  margin-bottom: 2rem;
+  background-color: #ccc;
+  border-radius: 8px;
+}
+
+.menuItem {
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 0.5rem 1rem;
+  width: 100%;
+  font-size: 16px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.menuItem:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+}
+
+.more {
+  margin-top: auto;
+}
+
+.searchContainer {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  width: 400px;
+  height: 100vh;
+  background: white;
+  border-left: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.searchHeader {
+  padding: 1rem;
+  border-bottom: 1px solid #ddd;
+  font-weight: bold;
+}
+
+.searchBox {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background-color: #dcdcdc;
+  outline: none;
+  margin-top: 10px;
+}
+
+.searchResults {
+  padding: 1rem;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.searchTitle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.clearAll {
+  font-size: 14px;
+  cursor: pointer;
+  color: #007bff;
+}
+
+.clearAll:hover {
+  text-decoration: underline;
+}
+
+.searchResults ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 10px;
+}
+
+.searchResults li {
+  padding: 5px 0;
+}
+
+.searchResults p {
+  text-align: center;
+  color: #888;
+  font-size: 16px;
+}
+
+
+
+.createpostContainer {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  width: 400px;
+  height: 100vh;
+  background: white;
+  border-left: 1px solid #ccc;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.createpostHeader {
+  padding: 1rem;
+  border-bottom: 1px solid #ddd;
+  font-weight: bold;
+}
+.selectButton {
+  display: block;
+  margin: 10px auto;
+  padding: 10px 16px;
+  background: #007bff;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  border: none;
+}
+
+.selectButton:hover {
+  background: #0056b3;
+}
+.createPostContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%; /* ปรับให้เต็มความสูงของกล่อง */
+  text-align: center;
+}
+/* styles.module.css */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: #ffffff;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 600px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  position: relative;
+  text-align: center;
+}
+
+.closeButton {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.modalTitle {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.imagePreview {
+  margin-bottom: 20px;
+  border-radius: 8px; /* เพิ่มขอบโค้งมน */
+  border: 1px solid #ddd; /* เส้นขอบของกล่อง */
+  width: 100%; /* กำหนดความกว้างกล่อง */
+  height: 100%; /* จำกัดความสูงของกล่อง */
+  display: flex; /* ใช้ Flexbox เพื่อจัดตำแหน่ง */
+  justify-content: center; /* จัดให้อยู่ตรงกลางแนวนอน */
+  align-items: center; /* จัดให้อยู่ตรงกลางแนวตั้ง */
+  background-color: #f9f9f9; /* สีพื้นหลัง */
+}
+
+.imagePreview img {
+  max-width: 100%; /* จำกัดความกว้างให้ไม่เกินกล่อง */
+  max-height: 100%; /* จำกัดความสูงให้ไม่เกินกล่อง */
+  width: auto; /* ให้ปรับขนาดตามสัดส่วน */
+  height: auto; /* ให้ปรับขนาดตามสัดส่วน */
+}
+
+
+
+
+
+
+
+.captionBox {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  resize: none;
+}
+
+.btnPrimary {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btnPrimary:hover {
+  background-color: #0056b3;
+}
+
+.moreContainer {
+  padding: 1rem;
+  background-color: white;
+  border: 1px solid #ccc;
+  position: absolute;
+  bottom: 80px;
+  top: auto; /* ปรับตำแหน่งให้อยู่ด้านบนข้อความ "More" */
+  left: 15; /* ตั้งให้เริ่มจากขอบซ้ายของ Sidebar */
+  width: 250px; /* ขนาดของกล่อง */
+  height: 250px;
+  overflow-y: auto; /* ถ้ามีเนื้อหามากเกินไปสามารถเลื่อนดูได้ */
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  border-radius: 8px;
+
+}
+
+.moreItem {
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 0.5rem 1rem;
+  width: 100%;
+  font-size: 16px;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.moreItem:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+}
+
+.logout {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  margin-top: auto;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.logout:hover {
+  background-color: #d32f2f;
+}
+
+.switchAppearanceContainer {
+  position: absolute;
+  bottom: 80px;
+  top: auto; /* ปรับตำแหน่งให้อยู่ด้านบนข้อความ "More" */
+  left: 150; /* ตั้งให้เริ่มจากขอบซ้ายของ Sidebar */
+  transform: translateX(-50%); /* จัดกลางกล่อง */
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  max-width: 250px;
+  width: 100%; /* กำหนดความกว้างให้เหมาะสม */
+  z-index: 1001; /* ให้กล่องแสดงอยู่เหนือเนื้อหาหลัก */
+  display: block;
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.switchAppearanceContainer.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.switchHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.backButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.switchItem {
+  display: flex;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.switchItem span {
+  margin-right: 10px;
+}
+
+.toggleSwitch {
+  width: 50px;
+  height: 25px;
+  border-radius: 50px;
+  background-color: #ccc;
+  position: relative;
+  right: -75;
+  cursor: pointer;
+}
+
+.toggleSwitch.active {
+  background-color: #0635ab;
+}
+
+.toggleSwitch::before {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: white;
+  transition: 0.3s;
+}
+
+.toggleSwitch.active::before {
+  left: 27px;
+}
