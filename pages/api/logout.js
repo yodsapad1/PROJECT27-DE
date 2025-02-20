@@ -1,5 +1,7 @@
 // pages/api/logout.js
 
+import { comment } from "postcss";
+
 // API handler for logging out
 export default async function handler(req, res) {
     if (req.method === 'POST') {
@@ -16,3 +18,6 @@ export default async function handler(req, res) {
       return res.status(405).end(`Method ${req.method} Not Allowed`);
     }
   }
+
+
+  
