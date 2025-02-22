@@ -10,7 +10,6 @@ export const config = {
 };
 
 export default async function handler(req, res) {
-<<<<<<< HEAD
   const { id } = req.query; // Get postId parameter from the URL
   console.log('Request received for postId:', id);
 
@@ -24,37 +23,21 @@ export default async function handler(req, res) {
           if (err) return reject(err);
           resolve(fields);
         });
-=======
-  if (req.method === 'POST') {
-    const { fields } = await new Promise((resolve, reject) => {
-      const form = new IncomingForm();
-      form.parse(req, (err, fields) => {
-        if (err) return reject(err);
-        resolve({ fields });
->>>>>>> parent of d4b0fbb (gg)
       });
     } catch (error) {
       console.error("Error parsing form data:", error);
       return res.status(500).json({ message: "Error parsing the files." });
     }
 
-<<<<<<< HEAD
     console.log("Received fields:", fields);
     const { reason, userId } = fields;
 
     if (!reason || !userId || !id) {
       console.error("Missing fields:", { reason, userId, id });
-=======
-    const { reason, userId, postId } = fields;
-
-    // Validate required fields
-    if (!reason || !userId || !postId) {
->>>>>>> parent of d4b0fbb (gg)
       return res.status(400).json({ message: 'Reason, userId, and postId are required.' });
     }
 
     try {
-<<<<<<< HEAD
       // Check if user exists
       const userExists = await prisma.user.findUnique({
         where: { id: userId },
@@ -74,9 +57,6 @@ export default async function handler(req, res) {
       }
 
       console.log("Creating a new report for the post...");
-=======
-      // Create a new report
->>>>>>> parent of d4b0fbb (gg)
       const newReport = await prisma.report.create({
         data: {
           reason,
@@ -95,7 +75,6 @@ export default async function handler(req, res) {
           : "Unknown error";
       return res.status(500).json({ message: 'Error creating report.', detail: errorMessage });
     }
-<<<<<<< HEAD
     
     
   } else if (req.method === 'GET') {
@@ -118,11 +97,3 @@ export default async function handler(req, res) {
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }
-=======
-  } else {
-    res.setHeader('Allow', ['POST']);
-    return res.status(405).end(`Method ${req.method} Not Allowed`);
-  }
-}
-
->>>>>>> parent of d4b0fbb (gg)

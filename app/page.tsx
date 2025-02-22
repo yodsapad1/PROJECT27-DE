@@ -18,7 +18,7 @@ export default function Home() {
   const { data: session, status } = useSession();
 
   const fetchPosts = async () => {
-    const response = await fetch("/api/posts", {
+    const response = await fetch("/api/post", {
       credentials: "include",
     });
     if (response.ok) {
