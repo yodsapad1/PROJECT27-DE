@@ -1,20 +1,23 @@
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv'
 
-const SECRET_KEY = process.env.SECRET_KEY; // ตั้งค่าลับในไฟล์ .env ของคุณ
+dotenv.config()
+
+const SECRET_KEY = process.env.SECRET_KEY ;
 
 export const authenticateToken = (req, res, next) => {
-    const token = req.headers['authorization']?.split(' ')[1]; // ดึง token จาก headers
+    const token = req.headers['authorization']?.split(' ')[1];
 
     if (!token) {
-        return res.status(401).json({ message: 'Unauthorized' }); // ใช้ res.status()
+        return res.status(401).json({ message: 'Unauthorized' });
     }
 
     jwt.verify(token, SECRET_KEY, (err, user) => {
         if (err) {
-            return res.status(403).json({ message: 'Forbidden' }); // ใช้ res.status()
+            console.error('Token verification failed:', err.message);
+            return res.status(403).json({ message: 'Forbidden' });
         }
-
-        req.user = user; // เก็บข้อมูลผู้ใช้ที่ตรวจสอบใน req
-        next(); // เรียกใช้ฟังก์ชันถัดไป
+        req.user = user;
+        next();
     });
 };
