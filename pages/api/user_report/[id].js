@@ -1,5 +1,5 @@
-// pages/api/user_report.js
 import { PrismaClient } from '@prisma/client';
+import { IncomingForm } from 'formidable';
 
 const prisma = new PrismaClient();
 
@@ -30,7 +30,11 @@ export default async function handler(req, res) {
     }
 
     console.log("Received fields:", fields);
-    const { reason, userId } = fields;
+    let { reason, userId } = fields;
+
+    // Minimal change: extract first element if fields are arrays
+    if (Array.isArray(reason)) reason = reason[0];
+    if (Array.isArray(userId)) userId = userId[0];
 
     if (!reason || !userId || !id) {
       console.error("Missing fields:", { reason, userId, id });
@@ -61,7 +65,7 @@ export default async function handler(req, res) {
         data: {
           reason,
           userId,
-          postId,
+          postId: id,
         },
       });
 
@@ -75,7 +79,6 @@ export default async function handler(req, res) {
           : "Unknown error";
       return res.status(500).json({ message: 'Error creating report.', detail: errorMessage });
     }
-    
     
   } else if (req.method === 'GET') {
     try {
