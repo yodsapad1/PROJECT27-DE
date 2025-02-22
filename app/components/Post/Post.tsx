@@ -1,10 +1,9 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./Post.module.css";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import EditPostModal from "./EditPostModal";
-import ReportModal from "./ReportModal"; // นำเข้า ReportModal
+import ReportModal from "./ReportModal";
 
 interface PostProps {
   id: string;
@@ -15,7 +14,7 @@ interface PostProps {
   likes: number;
   comments: number;
   ownerId: string;
-  currentUserId: string;
+  currentUserId?: string;
   onDelete?: () => void;
 }
 
@@ -31,37 +30,54 @@ const Post: React.FC<PostProps> = ({
   currentUserId,
   onDelete,
 }) => {
-  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  // สร้าง state สำหรับเก็บ userId ของผู้ใช้ที่ล็อกอิน
+  const [loggedUserId, setLoggedUserId] = useState<string | null>(
+    currentUserId || null
+  );
+
+  useEffect(() => {
+    // หาก currentUserId ยังไม่ถูกส่งเข้ามา ให้ลองดึงจาก localStorage
+    if (!currentUserId) {
+      const uid = localStorage.getItem("userId");
+      if (uid) {
+        setLoggedUserId(uid);
+      }
+    }
+  }, [currentUserId]);
 
   const toggleMenu = () => {
     setMenuOpen((prev) => !prev);
   };
 
   const handleDelete = async () => {
-    const confirmed = confirm("คุณแน่ใจหรือไม่ที่จะลบโพสต์นี้?");
+    const confirmed = confirm("Are you sure you want to delete this post?");
     if (!confirmed) return;
 
     try {
-      const response = await fetch(`/api/user_delete_post/${id}`, {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`/deletePost?postId=${id}`, {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          // ส่ง Authorization header เพื่อให้ API ตรวจสอบสิทธิ์ได้
+          Authorization: token ? `Bearer ${token}` : "",
+        },
         credentials: "include",
-        body: JSON.stringify({ userId: currentUserId }),
       });
 
       if (response.status === 204) {
-        alert("ลบโพสต์เรียบร้อยแล้ว");
+        alert("Post deleted successfully!");
         if (onDelete) onDelete();
       } else {
         const data = await response.json();
-        alert(data.message || "เกิดข้อผิดพลาดในการลบโพสต์");
+        alert(data.message || "Error deleting post");
       }
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error deleting post:", error);
-      alert("เกิดข้อผิดพลาดในการลบโพสต์");
+      alert("Error deleting post");
     }
     setMenuOpen(false);
   };
@@ -122,7 +138,7 @@ const Post: React.FC<PostProps> = ({
       {menuOpen && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
-            {currentUserId === ownerId ? (
+            {loggedUserId === ownerId ? (
               <>
                 <button onClick={handleDelete} className={styles.modalButton}>
                   Delete
@@ -136,7 +152,10 @@ const Post: React.FC<PostProps> = ({
                 Report
               </button>
             )}
-            <button onClick={() => setMenuOpen(false)} className={styles.modalButton}>
+            <button
+              onClick={() => setMenuOpen(false)}
+              className={styles.modalButton}
+            >
               Cancel
             </button>
           </div>
@@ -156,10 +175,10 @@ const Post: React.FC<PostProps> = ({
       {isReportModalOpen && (
         <ReportModal
           postId={id}
-          currentUserId={currentUserId}
+          currentUserId={loggedUserId || ""}
           closeModal={() => setIsReportModalOpen(false)}
           onReportSubmitted={() => {
-            // อาจรีเฟรชโพสต์หรือแสดงข้อความอื่นๆ
+            // Optionally refresh post or show a message
           }}
         />
       )}

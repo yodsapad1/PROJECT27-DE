@@ -13,7 +13,8 @@ export default async function handler(req, res) {
         return res.status(405).json({ message: 'Only POST requests are allowed.' });
     }
 
-    const { email, password } = req.body; // Extract data from request body
+    // ดึงค่า email และ password จาก request body
+    const { email, password } = req.body; 
 
     // Validate that the necessary data is provided
     if (!email || !password) {
@@ -44,7 +45,6 @@ export default async function handler(req, res) {
         // Respond with success message and user info (omit password for security)
         res.status(200).json({ message: 'Login successful!', token, user: { id: user.id, name: user.name, email: user.email } });
     } catch (error) {
-        console.error('Error logging in:', error); // Log error details
         res.status(500).json({ message: 'Failed to log in.', detail: error.message });
     } finally {
         await prisma.$disconnect(); // Ensure Prisma client is disconnected

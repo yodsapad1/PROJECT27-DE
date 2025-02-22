@@ -19,7 +19,9 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
   onPostUpdated,
 }) => {
   const [caption, setCaption] = useState(initialCaption);
-  const [selectedImage, setSelectedImage] = useState<string | null>(initialImage || null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(
+    initialImage || null
+  );
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [error, setError] = useState("");
 
@@ -47,6 +49,15 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
     const formData = new FormData();
     formData.append("title", caption);
     formData.append("content", caption);
+    
+    // ดึง userId จาก localStorage แล้วเพิ่มลงใน formData
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      setError("User ID not found. Please log in again.");
+      return;
+    }
+    formData.append("userId", userId);
+
     if (selectedFile) {
       formData.append("images", selectedFile);
     }
@@ -73,11 +84,18 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.modalContent}>
-        <button onClick={closeModal} className={styles.closeButton}>✖</button>
+        <button onClick={closeModal} className={styles.closeButton}>
+          ✖
+        </button>
         <h2 className={styles.modalTitle}>Edit Post</h2>
         {selectedImage && (
           <div className={styles.imagePreview}>
-            <Image src={selectedImage} alt="Selected Image" width={500} height={300} />
+            <Image
+              src={selectedImage}
+              alt="Selected Image"
+              width={500}
+              height={300}
+            />
           </div>
         )}
         <input type="file" accept="image/*" onChange={handleImageChange} />
@@ -88,8 +106,12 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
           className={styles.captionBox}
         />
         {error && <p style={{ color: "red" }}>{error}</p>}
-        <button onClick={updatePost} className={styles.btnPrimary}>Update Post</button>
-        <button onClick={closeModal} className={styles.btnSecondary}>Cancel</button>
+        <button onClick={updatePost} className={styles.btnPrimary}>
+          Update Post
+        </button>
+        <button onClick={closeModal} className={styles.btnSecondary}>
+          Cancel
+        </button>
       </div>
     </div>
   );

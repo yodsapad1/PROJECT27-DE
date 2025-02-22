@@ -1,13 +1,12 @@
-'use client'; // ระบุว่าเป็น Client Component
+'use client';
 
 import { useState } from "react";
 import styles from "./Sidebar.module.css";
 import Image from "next/image";
-import { useRouter } from 'next/navigation'; // ใช้ next/navigation แทน
-
+import { useRouter } from 'next/navigation';
 
 interface SidebarProps {
-  onNewPost: () => void; // ✅ ตรวจสอบให้แน่ใจว่า props ถูกต้อง
+  onNewPost: () => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
@@ -19,12 +18,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [isSwitchAppearanceOpen, setIsSwitchAppearanceOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
-  const [isMoreOpen, setIsMoreOpen] = useState(false); // กำหนดสถานะสำหรับ More Options
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [isCreatePostVisible, setIsCreatePostVisible] = useState(false);
   const [caption, setCaption] = useState("");
-  const [selectedImage, setSelectedImage] = useState<File | null>(null);
-
-
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const goToHome = () => router.push("/");
   const goToProfile = () => router.push("/Profile");
@@ -32,13 +29,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
   const toggleSearch = () => {
     setIsSearchOpen(!isSearchOpen);
     setIsCreatePostOpen(false);
-    setIsCollapsed(!isSearchOpen); // หด Sidebar เมื่อเปิด Search
+    setIsCollapsed(!isSearchOpen);
   };
-  
+
   const toggleCreatePost = () => {
     setIsCreatePostOpen(!isCreatePostOpen);
     setIsSearchOpen(false);
-    setIsCollapsed(!isCreatePostOpen); // หด Sidebar เมื่อเปิด Create Post
+    setIsCollapsed(!isCreatePostOpen);
   };
 
   const clearSearch = () => setRecentSearches([]);
@@ -66,7 +63,14 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
     const formData = new FormData();
     formData.append("title", caption);
     formData.append("content", caption);
-    formData.append("userId", "1"); // ใช้ userId ที่เหมาะสม
+    
+    // ดึง userId จาก localStorage แทนการใช้ค่าคงที่ "1"
+    const userId = localStorage.getItem("userId");
+    if (!userId) {
+      alert("User not found. Please log in again.");
+      return;
+    }
+    formData.append("userId", userId);
 
     const imageBlob = await fetch(selectedImage).then((r) => r.blob());
     formData.append("images", imageBlob, "image.jpg");
@@ -80,7 +84,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
       
       if (response.ok) {
         alert("Post shared successfully!");
-        onNewPost(); // ✅ เรียกใช้ props เพื่อแจ้งว่ามีโพสต์ใหม่
+        onNewPost();
         setIsCreatePostVisible(false);
         setSelectedImage(null);
         setCaption("");
@@ -88,11 +92,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
         const errorData = await response.json();
         alert("Failed to create post: " + errorData.message);
       }
-    } catch (error) {
+    } catch (error: any) {
       alert("Error: " + error.message);
     }
   };
-  
 
   const closeCreatePost = () => {
     setIsCreatePostVisible(false);
@@ -101,28 +104,25 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
   const toggleSwitchAppearance = () => {
     setIsSwitchAppearanceOpen(!isSwitchAppearanceOpen);
     if (!isSwitchAppearanceOpen) {
-      setIsMoreOpen(false); // ซ่อน More Options เมื่อเปิด Switch Appearance
+      setIsMoreOpen(false);
     }
   };
   
   const closeSwitchAppearance = () => {
-    setIsSwitchAppearanceOpen(false); // ปิด Switch Appearance
+    setIsSwitchAppearanceOpen(false);
   };
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
-    document.body.classList.toggle("dark-mode", !isDarkMode); // สลับธีมของ body
+    document.body.classList.toggle("dark-mode", !isDarkMode);
   };
 
   const handleLogout = () => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
-    window.location.href = '/Login'; // เปลี่ยนหน้าไปที่หน้า Login
+    localStorage.removeItem('userId');
+    window.location.href = '/Login';
   };
-  
-
-
-
 
   return (
     <>
@@ -158,7 +158,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
           </ul>
         </nav>
 
-        {/* More Options */}
         <div className={styles.more}>
           <button onClick={() => setIsMoreOpen(!isMoreOpen)} className={styles.menuItem}>
             <Image src="/assets/more.png" alt="More" width={24} height={24} className={styles.icon} />
@@ -166,7 +165,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
           </button>
         </div>
 
-        {/* Search Box */}
         {isSearchOpen && (
           <div className={styles.searchContainer}>
             <div className={styles.searchHeader}>
@@ -199,7 +197,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
           </div>
         )}
 
-        {/* Create Post Box */}
         {isCreatePostOpen && (
           <div className={styles.createpostContainer}>
             <div className={styles.createpostHeader}>
@@ -214,7 +211,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
           </div>
         )}
 
-        {/* More Options */}
         {isMoreOpen && !isSwitchAppearanceOpen && (
           <div className={styles.moreContainer}>
             <ul>
@@ -240,39 +236,29 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
             <button className={styles.logout} onClick={handleLogout}>Logout</button>
           </div>
         )}
-
       </aside>
 
-      {/* Modal: Create Post */}
       {isCreatePostVisible && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
             <button onClick={closeCreatePost} className={styles.closeButton}>✖</button>
-
             <h2 className={styles.modalTitle}>Create New Post</h2>
-
-              {/* Preview รูปภาพ */}
-              {selectedImage && (
-                <div className={styles.imagePreview}>
-                  <Image src={selectedImage} alt="Selected Image" width={500} height={300} />
-                </div>
-              )}
-
-            {/* ช่องใส่ข้อความ */}
+            {selectedImage && (
+              <div className={styles.imagePreview}>
+                <Image src={selectedImage} alt="Selected Image" width={500} height={300} />
+              </div>
+            )}
             <textarea
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
               placeholder="Write a caption..."
               className={styles.captionBox}
             />
-
-            {/* ปุ่ม Post */}
             <button onClick={sharePost} className={styles.btnPrimary}>Post</button>
           </div>
         </div>
       )}
 
-      {/* Switch Appearance */}
       {isSwitchAppearanceOpen && (
         <div className={styles.switchAppearanceContainer}>
           <div className={styles.switchHeader}>
@@ -290,8 +276,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
           </div>
         </div>
       )}
-      
-    </> 
+    </>
   );
 };
 
