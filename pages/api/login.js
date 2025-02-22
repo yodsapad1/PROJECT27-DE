@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
-const SECRET_KEY = process.env.JWT_SECRET || 'your_secret_key'; // กำหนดกุญแจลับสำหรับ JWT
+const SECRET_KEY = process.env.SECRET_KEY; // กำหนดกุญแจลับสำหรับ JWT
 
 export default async function handler(req, res) {
     console.log('Login handler called with method:', req.method); // Log the method called
@@ -13,7 +13,8 @@ export default async function handler(req, res) {
         return res.status(405).json({ message: 'Only POST requests are allowed.' });
     }
 
-    const { email, password } = req.body; // Extract data from request body
+    // ดึงค่า email และ password จาก request body
+    const { email, password } = req.body; 
 
     // Validate that the necessary data is provided
     if (!email || !password) {
@@ -39,12 +40,11 @@ export default async function handler(req, res) {
         }
 
         // Create JWT token
-        const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '1w' });
+        const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '12h' });
 
         // Respond with success message and user info (omit password for security)
         res.status(200).json({ message: 'Login successful!', token, user: { id: user.id, name: user.name, email: user.email } });
     } catch (error) {
-        console.error('Error logging in:', error); // Log error details
         res.status(500).json({ message: 'Failed to log in.', detail: error.message });
     } finally {
         await prisma.$disconnect(); // Ensure Prisma client is disconnected
