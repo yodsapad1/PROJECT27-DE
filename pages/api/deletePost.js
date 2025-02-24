@@ -11,7 +11,12 @@ export default async function handler(req, res) {
         authenticateToken(req, res, async () => {
             const loggedInUserId = req.user.id;
 
+            // Log the token and logged-in user ID
+            console.log('Token:', req.headers.authorization); // Log the token
+            console.log('Logged In User ID:', loggedInUserId); // Log the User ID
+
             try {
+                // Find the existing post
                 const existingPost = await prisma.post.findUnique({
                     where: { id: String(postId) }
                 });
@@ -23,14 +28,14 @@ export default async function handler(req, res) {
                 console.log("Post Owner ID:", existingPost.userId);
 
                 // Check ownership
-                if (existingPost.userId.toString() !== loggedInUserId.toString()) {
+                if (String(existingPost.userId) !== String(loggedInUserId)) {
                     console.error(`Unauthorized access: User ID: ${loggedInUserId}, Post Owner ID: ${existingPost.userId}`);
                     return res.status(403).json({ message: 'Forbidden: You are not the owner of this post.' });
                 }
 
                 // Delete associated comments
-                await prisma.comment.deleteMany({ where: { postId: String(postId) } });
-                console.log("Deleted associated comments.");
+                const deletedComments = await prisma.comment.deleteMany({ where: { postId: String(postId) } });
+                console.log(`Deleted associated comments: ${deletedComments.count}`);
 
                 // Delete the post
                 await prisma.post.delete({ where: { id: String(postId) } });
