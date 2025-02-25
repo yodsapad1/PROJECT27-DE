@@ -1,10 +1,10 @@
-"use client";
 import React, { useState, useEffect, FormEvent } from "react";
 import Image from "next/image";
 import styles from "./EditPostModal.module.css";
 
 interface EditPostModalProps {
   postId: string;
+  initialTitle: string; // เพิ่ม prop สำหรับ title
   initialCaption: string;
   initialImage?: string;
   closeModal: () => void;
@@ -13,11 +13,14 @@ interface EditPostModalProps {
 
 const EditPostModal: React.FC<EditPostModalProps> = ({
   postId,
+  initialTitle,
   initialCaption,
   initialImage,
   closeModal,
   onPostUpdated,
 }) => {
+  // ประกาศ state สำหรับ title
+  const [title, setTitle] = useState(initialTitle);
   const [caption, setCaption] = useState(initialCaption);
   const [selectedImage, setSelectedImage] = useState<string | null>(
     initialImage || null
@@ -26,9 +29,10 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
   const [error, setError] = useState("");
 
   useEffect(() => {
+    setTitle(initialTitle);
     setCaption(initialCaption);
     setSelectedImage(initialImage || null);
-  }, [initialCaption, initialImage]);
+  }, [initialTitle, initialCaption, initialImage]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -41,15 +45,15 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
     e.preventDefault();
     setError("");
 
-    if (!caption) {
-      setError("Please enter a caption.");
+    if (!caption || !title) {
+      setError("Please enter a title and caption.");
       return;
     }
 
     const formData = new FormData();
-    formData.append("title", caption);
+    formData.append("title", title);
     formData.append("content", caption);
-    
+
     // ดึง userId จาก localStorage แล้วเพิ่มลงใน formData
     const userId = localStorage.getItem("userId");
     if (!userId) {
@@ -88,8 +92,19 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
           ✖
         </button>
         <h2 className={styles.modalTitle}>Edit Post</h2>
+        
+        {/* ช่องใส่ Title */}
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Enter post title..."
+          className={styles.titleInput}
+        />
+
         {selectedImage && (
           <div className={styles.imagePreview}>
+            {title && <h3 className={styles.imageTitle}>{title}</h3>}
             <Image
               src={selectedImage}
               alt="Selected Image"
