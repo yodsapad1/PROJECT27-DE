@@ -5,7 +5,6 @@ import Image from "next/image";
 import EditPostModal from "./EditPostModal";
 import ReportModal from "./ReportModal";
 import CommentModal from "./CommentModal";
-import jwt from "jsonwebtoken";
 
 interface Comment {
   id: string;

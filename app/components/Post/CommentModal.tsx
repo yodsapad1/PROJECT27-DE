@@ -30,6 +30,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [openCommentMenuId, setOpenCommentMenuId] = useState<string | null>(null); // เก็บ comment.id ที่เมนูเปิดอยู่
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // โหลดคอมเมนต์จาก API เมื่อเปิด Modal
@@ -69,6 +70,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
 
   // ฟังก์ชันเพิ่มคอมเมนต์ใหม่
   const handleAddComment = async () => {
+    // อนุญาตให้ส่งคอมเมนต์ได้หากมีข้อความหรือมีรูปภาพที่เลือก
     if (!newComment.trim() && !selectedImage) return;
     setLoading(true);
 
@@ -87,7 +89,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
       if (selectedImage) {
         formData.append("images", selectedImage);
       } else {
-        // ส่ง dummy file หากไม่มีไฟล์ที่เลือก (เป็น workaround)
+        // ส่ง dummy file หากไม่ได้เลือกไฟล์ (workaround)
         const dummyBlob = new Blob(["dummy"], { type: "image/jpeg" });
         const dummyFile = new File([dummyBlob], "dummy.jpg", { type: "image/jpeg" });
         formData.append("images", dummyFile);
@@ -131,6 +133,31 @@ const CommentModal: React.FC<CommentModalProps> = ({
     setPreviewImage(null);
   };
 
+  // ฟังก์ชันปิดเมนู 3 จุด
+  const closeCommentMenu = () => setOpenCommentMenuId(null);
+
+  // ฟังก์ชันตัวอย่างสำหรับ Delete, Edit, Report
+  const handleCommentDelete = (commentId: string) => {
+    console.log("Delete comment:", commentId);
+    closeCommentMenu();
+    // TODO: เรียก API ลบคอมเมนต์
+  };
+
+  const handleCommentEdit = (commentId: string) => {
+    console.log("Edit comment:", commentId);
+    closeCommentMenu();
+    // TODO: เปิด modal หรือฟอร์มสำหรับแก้ไขคอมเมนต์
+  };
+
+  const handleCommentReport = (commentId: string) => {
+    console.log("Report comment:", commentId);
+    closeCommentMenu();
+    // TODO: เรียก API รายงานคอมเมนต์
+  };
+
+  // userId ของผู้ใช้ปัจจุบัน
+  const loggedUserId = typeof window !== "undefined" ? localStorage.getItem("userId") : null;
+
   return (
     <>
       <div className={styles.modalOverlay}>
@@ -151,8 +178,10 @@ const CommentModal: React.FC<CommentModalProps> = ({
                 {comments.length > 0 ? (
                   comments.map((comment) => (
                     <div key={comment.id} className={styles.commentItem}>
-                      <strong>User {comment.userId}</strong>: {comment.content}
-                      {/* แสดงรูปคอมเมนต์ ถ้า images มีและรูปไม่ใช่ dummy */}
+                      <div className={styles.commentContent}>
+                        <strong>User {comment.userId}</strong>: {comment.content}
+                      </div>
+                      {/* แสดงรูปคอมเมนต์ หากมีและไม่ใช่ dummy */}
                       {comment.images &&
                         comment.images.length > 0 &&
                         !comment.images[0].toLowerCase().includes("dummy") && (
@@ -170,6 +199,41 @@ const CommentModal: React.FC<CommentModalProps> = ({
                             />
                           </div>
                         )}
+                      {/* ส่วน reply + 3 จุด */}
+                      <div className={styles.replySection}>
+                        <span className={styles.replyText}>Reply</span>
+                        <span
+                          className={styles.replyDots}
+                          onClick={() =>
+                            setOpenCommentMenuId(
+                              openCommentMenuId === comment.id ? null : comment.id
+                            )
+                          }
+                        >
+                          ⋯
+                        </span>
+                        {openCommentMenuId === comment.id && (
+                          <div className={styles.commentMenuOverlay}>
+                            <div className={styles.commentMenuContent}>
+                              {loggedUserId === comment.userId ? (
+                                <>
+                                  <button onClick={() => handleCommentDelete(comment.id)}>
+                                    Delete
+                                  </button>
+                                  <button onClick={() => handleCommentEdit(comment.id)}>
+                                    Edit
+                                  </button>
+                                </>
+                              ) : (
+                                <button onClick={() => handleCommentReport(comment.id)}>
+                                  Report
+                                </button>
+                              )}
+                              <button onClick={closeCommentMenu}>Cancel</button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))
                 ) : (

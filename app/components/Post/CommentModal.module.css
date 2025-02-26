@@ -71,17 +71,114 @@
 .commentList {
   flex-grow: 1;
   overflow-y: auto;
-  max-height: 600px; /* เพิ่มความสูงจาก 400px เป็น 600px */
+  max-height: 600px;
   padding: 5px;
 }
+.commentInput {
+  display: flex;
+  align-items: center;
+  margin-top: auto;  
+  gap: 5px;
+}
+
+.textInput {
+  flex-grow: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
 
 .commentItem {
+  position: relative;
   padding: 5px 0;
   border-bottom: 1px solid #eee;
   margin-bottom: 5px;
-  word-wrap: break-word;         /* ให้คำที่ยาวเกินไปตัดบรรทัดใหม่ */
-  overflow-wrap: break-word;      /* รองรับเบราว์เซอร์บางตัว */
-  white-space: normal;            /* ยืนยันว่าไม่ใช่ single line */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+.commentContent {
+  margin-bottom: 5px;
+}
+
+
+.commentMenuButton {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 5px;
+}
+
+/* ส่วน reply + 3 จุด */
+.replySection {
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #555;
+  gap: 10px;
+}
+
+.replyText {
+  cursor: pointer;
+}
+
+.replyDots {
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.commentMenuOverlay {
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  width: 100%;
+  height: 100%;
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0,0,0,0.3);
+}
+
+.commentMenuContent {
+  background: #fff;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 550px;
+}
+.commentMenuContent button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: center;
+  padding: 8px;
+  border-radius: 5px;
+
+}
+
+.commentMenuContent button:hover {
+  background-color: #f0f0f0;
+}
+
+
+/* ส่วนที่มีอยู่แล้วสำหรับ commentImage, commentList, ฯลฯ */
+.commentImage {
+  margin-top: 5px;
+}
+
+.commentImage img {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 5px;
 }
 
 .postActions {
@@ -126,11 +223,19 @@
 /* ปุ่มบวกสำหรับเลือกภาพ */
 .plusButton {
   padding: 8px;
-  margin-right: 5px;
   background-color: #eee;
   border: none;
   border-radius: 50%;
   font-size: 18px;
+  cursor: pointer;
+}
+
+.postButton {
+  padding: 8px 12px;
+  background-color: #0095f6;
+  color: white;
+  border: none;
+  border-radius: 5px;
   cursor: pointer;
 }
 
