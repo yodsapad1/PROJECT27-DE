@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client';
-import { IncomingForm } from 'formidable'; // นำเข้า IncomingForm อย่างถูกต้อง
+import { IncomingForm } from 'formidable';
 import fs from 'fs';
 import path from 'path';
 
@@ -7,16 +7,21 @@ const prisma = new PrismaClient();
 
 export const config = {
   api: {
-    bodyParser: false, // ปิด bodyParser เพราะใช้ formidable
+    bodyParser: false, // Disable bodyParser to handle with formidable
   },
 };
 
 export default async function handler(req, res) {
-  const { originalCommentId } = req.query; // ดึง ID ของคอมเมนต์ที่กำลังตรวจสอบ
-  console.log("Received a request for original comment ID:", originalCommentId);
+  const { id } = req.query;
+  console.log("Received originalCommentId:", id);
+
+  if (!id) {
+    console.error('No originalCommentId provided in the request');
+    return res.status(400).json({ message: 'originalCommentId is required' });
+  }
 
   if (req.method === 'POST') {
-    const form = new IncomingForm(); // ใช้ IncomingForm ที่นำเข้า
+    const form = new IncomingForm(); // Use IncomingForm
 
     form.parse(req, async (err, fields, files) => {
       if (err) {
@@ -27,17 +32,20 @@ export default async function handler(req, res) {
       console.log('Received data:', fields);
       console.log('Uploaded files:', files);
 
-      const { content, userId, originalCommentId } = fields; 
+      const { content, userId } = fields;
+      const contentValue = Array.isArray(content) ? content[0] : content;
+      const userIdValue = Array.isArray(userId) ? userId[0] : userId;
       const images = files.images ? (Array.isArray(files.images) ? files.images : [files.images]) : [];
       const imageUrls = [];
       const uploadsDir = path.join(process.cwd(), 'public/uploads');
 
-      // สร้างโฟลเดอร์สำหรับจัดเก็บภาพถ้ายังไม่มี
       if (!fs.existsSync(uploadsDir)) {
         fs.mkdirSync(uploadsDir, { recursive: true });
+        console.log('Uploads directory created at:', uploadsDir);
+      } else {
+        console.log('Uploads directory already exists at:', uploadsDir);
       }
 
-      // เก็บ URL ของภาพที่อัปโหลด
       for (const image of images) {
         const imageFileType = image.mimetype.split('/')[0];
         if (imageFileType !== 'image') {
@@ -47,7 +55,6 @@ export default async function handler(req, res) {
         const imageFileName = `${Date.now()}-${image.originalFilename}`;
         const newImagePath = path.join(uploadsDir, imageFileName);
 
-        // ย้ายไฟล์ไปยังโฟลเดอร์ที่กำหนด
         try {
           fs.renameSync(image.filepath, newImagePath);
           imageUrls.push(`/uploads/${imageFileName}`);
@@ -58,25 +65,22 @@ export default async function handler(req, res) {
         }
       }
 
-      // เตรียมข้อมูลสำหรับการสร้างการตอบกลับ
       const newReplyData = {
-        content: content || '',
-        originalCommentId: originalCommentId, // ID ของคอมเมนต์ที่กำลังตอบกลับ
-        userId: userId || '',
+        content: contentValue || '',
+        originalCommentId: id || '',
+        userId: userIdValue || '',
         images: imageUrls.length > 0 ? imageUrls : [],
       };
 
-      // ตรวจสอบว่ามี userId และ originalCommentId หรือไม่
       if (!newReplyData.userId || !newReplyData.originalCommentId) {
-        console.log('Received data:', newReplyData); // ตรวจสอบค่าที่ใช้งาน
-        return res.status(400).json({ 
-          message: 'Missing userId or originalCommentId', 
-          userId: newReplyData.userId, 
-          originalCommentId: newReplyData.originalCommentId 
+        console.log('Received data:', newReplyData);
+        return res.status(400).json({
+          message: 'Missing userId or originalCommentId',
+          userId: newReplyData.userId,
+          originalCommentId: newReplyData.originalCommentId
         });
       }
 
-      // สร้างการตอบกลับคอมเมนต์ใหม่ในฐานข้อมูล
       try {
         const newReply = await prisma.reply.create({
           data: newReplyData,
@@ -92,17 +96,17 @@ export default async function handler(req, res) {
       }
     });
   } else if (req.method === 'GET') {
-    // ดึงการตอบกลับทั้งหมดที่เกี่ยวข้องกับ originalCommentId
+    console.log(`GET request for replies related to comment ID: ${id}`);
     try {
       const replies = await prisma.reply.findMany({
-        where: { originalCommentId: originalCommentId },
+        where: { originalCommentId: id },
       });
 
       if (replies.length > 0) {
         console.log('Retrieved replies:', replies);
         return res.status(200).json(replies);
       } else {
-        console.log('No replies found for original comment ID:', originalCommentId);
+        console.log('No replies found for original comment ID:', id);
         return res.status(404).json({ message: 'Replies not found' });
       }
     } catch (error) {
@@ -110,36 +114,56 @@ export default async function handler(req, res) {
       return res.status(500).json({ message: 'Error retrieving replies.' });
     }
   } else if (req.method === 'DELETE') {
-    const { userId } = req.query; // ดึง userId จาก query string
+    const form = new IncomingForm();
 
-    try {
-      // ค้นหาการตอบกลับที่ต้องการลบ
-      const reply = await prisma.reply.findUnique({
-        where: { id: originalCommentId }, // ใช้ originalCommentId เป็น ID
-      });
-
-      if (!reply) {
-        return res.status(404).json({ message: 'Reply not found' });
+    form.parse(req, async (err, fields) => {
+      if (err) {
+        console.error('Error parsing form data:', err);
+        return res.status(500).json({ message: 'Error parsing form data.' });
       }
 
-      // ตรวจสอบว่า userId ที่ส่งมาคือเจ้าของการตอบกลับหรือไม่
-      if (reply.userId !== userId) {
-        return res.status(403).json({ message: 'You do not have permission to delete this reply.' });
+      const { replyId, userId } = fields;
+
+      if (!replyId || !userId) {
+        console.error('Missing replyId or userId in the request body');
+        return res.status(400).json({ message: 'replyId and userId are required' });
       }
 
-      // ทำการลบการตอบกลับ
-      await prisma.reply.delete({
-        where: { id: originalCommentId }, // ใช้ originalCommentId ในการลบ
-      });
+      console.log(`Delete request for reply with ID: ${replyId} by user ${userId}`);
 
-      console.log('Deleted reply:', originalCommentId);
-      return res.status(200).json({ message: 'Reply deleted successfully' });
-    } catch (error) {
-      console.error('Error deleting reply:', error);
-      return res.status(500).json({ message: 'Error deleting reply.' });
-    }
+      try {
+        const reply = await prisma.reply.findUnique({
+          where: { id: replyId },
+        });
+
+        if (!reply) {
+          console.log('Reply not found for deletion:', replyId);
+          return res.status(404).json({ message: 'Reply not found' });
+        }
+
+        if (reply.userId !== userId) {
+          console.log(`Permission denied for user ${userId} to delete reply: ${replyId}`);
+          return res.status(403).json({ message: 'You do not have permission to delete this reply.' });
+        }
+
+        await prisma.reply.delete({
+          where: { id: replyId },
+        });
+
+        console.log('Deleted reply:', replyId);
+        return res.status(200).json({ message: 'Reply deleted successfully' });
+      } catch (error) {
+        if (error && typeof error === 'object') {
+          console.error('Error deleting reply:', error);
+        } else {
+          console.error('An unknown error occurred while deleting the reply.');
+        }
+
+        return res.status(500).json({ message: 'Error deleting reply.' });
+      }
+    });
   } else {
-    // กำหนดวิธีที่อนุญาต
+    console.log(`Method ${req.method} not allowed.`);
     res.setHeader('Allow', ['POST', 'GET', 'DELETE']);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
