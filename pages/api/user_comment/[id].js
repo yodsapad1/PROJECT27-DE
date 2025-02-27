@@ -12,8 +12,8 @@ export const config = {
 };
 
 export default async function handler(req, res) {
-  const { id } = req.query; // ดึง ID ของโพสต์จาก URL
-  console.log("Received a request for post ID:", id);
+  const { id } = req.query; // ดึง ID ของโพสต์หรือคอมเมนต์จาก URL
+  console.log("Received a request for ID:", id);
 
   if (req.method === 'POST') {
     const form = new IncomingForm();
@@ -56,20 +56,15 @@ export default async function handler(req, res) {
 
       // เตรียมข้อมูลใหม่สำหรับสร้างคอมเมนต์
       const newCommentData = {
-        content: content ? content[0] : null,
+        content: content ? content[0] : '',
         postId: id,
-        userId: userId[0], // รับค่าแรกจาก userId array
+        userId: userId ? userId[0] : '', // รับค่าแรกจาก userId array
         images: imageUrls.length > 0 ? imageUrls : [], // ใช้ empty array
       };
 
-      // ต้องแน่ใจว่ามี userId และ postId
+      // ตรวจสอบว่า userId และ postId มีอยู่หรือไม่
       if (!newCommentData.userId || !newCommentData.postId) {
         return res.status(400).json({ message: 'Missing userId or postId' });
-      }
-
-      // ต้องแน่ใจว่ามีอย่างน้อยหนึ่งใน content หรือ images
-      if (newCommentData.content && newCommentData.images.length === 0) {
-        return res.status(400).json({ message: 'At least content or images must be provided' });
       }
 
       // สร้างคอมเมนต์ใหม่ในฐานข้อมูล
@@ -79,7 +74,7 @@ export default async function handler(req, res) {
             content: newCommentData.content || '',
             userId: newCommentData.userId,
             postId: newCommentData.postId,
-            images: newCommentData.images,
+            images: newCommentData.images || [],
           },
         });
         console.log('New comment created:', newComment);
@@ -88,7 +83,7 @@ export default async function handler(req, res) {
         console.error('Error creating comment:', error);
         return res.status(500).json({
           message: 'Error creating comment.',
-          detail: error.message || 'An unknown error occurred',  // ส่งกลับข้อผิดพลาดในกรณีเกิดข้อผิดพลาด
+          detail: error.message || 'An unknown error occurred',
         });
       }
     });
@@ -110,9 +105,43 @@ export default async function handler(req, res) {
       console.error('Error retrieving comments:', error);
       return res.status(500).json({ message: 'Error retrieving comments.' });
     }
+  } else if (req.method === 'DELETE') {
+    // Handle DELETE request for deleting a comment
+    try {
+      const { userId } = req.query; // ดึง userId จาก query string
+
+      // ค้นหาคอมเมนต์ที่ต้องการลบ
+      const comment = await prisma.comment.findUnique({
+        where: { id: id },
+      });
+
+      if (!comment) {
+        return res.status(404).json({ message: 'Comment not found' , comment , id});
+      }
+
+      // ตรวจสอบว่า userId ที่ส่งมาคือเจ้าของคอมเมนต์หรือไม่
+      if (comment.userId !== userId) {
+        return res.status(403).json({ message: 'You do not have permission to delete this comment.' });
+      }
+
+      // ทำการลบคอมเมนต์
+      await prisma.comment.delete({
+        where: { id: id },
+      });
+
+      console.log('Deleted comment:', id);
+      return res.status(200).json({ message: 'Comment deleted successfully' });
+    } catch (error) {
+      if (error) {
+        console.error('Error deleting comment:', error);
+      } else {
+        console.error('Error deleting comment: Unknown error');
+      }
+      return res.status(500).json({ message: 'Error deleting comment.' });
+    }
   } else {
     // กำหนดวิธีที่อนุญาต
-    res.setHeader('Allow', ['POST', 'GET']);
+    res.setHeader('Allow', ['POST', 'GET', 'DELETE']);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
 }
