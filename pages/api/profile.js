@@ -1,6 +1,5 @@
 import { PrismaClient } from '@prisma/client';
 import multer from 'multer'; 
-import path from 'path'; 
 import fs from 'fs';
 import { authenticateToken } from './auth'; 
 
@@ -78,38 +77,40 @@ export default async function handler(req, res) {
                 }
             });
         } else if (req.method === 'PUT') {
-            const { username, profileImage } = req.body; // รับชื่อผู้ใช้, และภาพโปรไฟล์ใหม่จาก body
-        
+            const { username, profileImage } = req.body; // รับชื่อผู้ใช้และภาพโปรไฟล์ใหม่จาก body
+            
             try {
                 const { id } = req.user;
-        
+
                 const updatedData = {}; // สร้างอ็อบเจ็กต์สำหรับการอัปเดต
-        
+
                 // ตรวจสอบและอัปเดตชื่อผู้ใช้ ถ้ามีการส่งชื่อผู้ใช้ใหม่เข้ามา
                 if (username) {
                     updatedData.name = username; // ตั้งชื่อผู้ใช้ใหม่
                 }
-        
-        
+
                 // ตรวจสอบและอัปเดตรูปภาพโปรไฟล์ ถ้ามีการส่งรูปภาพใหม่เข้ามา
                 if (profileImage) {
                     updatedData.profileImage = profileImage; // ตั้งค่าภาพโปรไฟล์ใหม่
                 }
-        
+
                 // อัปเดตข้อมูลผู้ใช้
                 const updatedUser = await prisma.user.update({
                     where: { id },
                     data: updatedData,
                 });
-        
+
                 return res.status(200).json({
                     message: 'User updated successfully',
                     user: updatedUser,
                 });
             } catch (error) {
-                console.error('Error updating user:', error);
+                console.error('Error updating user profile image:', error);
                 return res.status(500).json({ message: 'Internal Server Error' });
             }
+        } else {
+            res.setHeader('Allow', ['GET', 'POST', 'PUT']);
+            return res.status(405).end(`Method ${req.method} Not Allowed`);
         }
     });
 }
