@@ -12,6 +12,8 @@ model User {
   name     String
   email    String     @unique
   password String?    // Password can be optional or null
+  bio          String?
+  profileImage String? // ฟิลด์สำหรับ URL ของภาพโปรไฟล์
   posts    Post[]     @relation("UserPosts") // One User can have many Posts
   comments Comment[]  @relation("UserComments") // One User can have many Comments
   reports   Report[]  @relation("UserReports") // One User can report many Posts
