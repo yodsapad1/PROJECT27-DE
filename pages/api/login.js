@@ -3,7 +3,9 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
-const SECRET_KEY = process.env.SECRET_KEY; // กำหนดกุญแจลับสำหรับ JWT
+
+const SECRET_KEY = process.env.JWT_SECRET || 'RnNVoF4XRf3UwSA8WByFOrzU7DOqVI85Htt5R7J/U4s='; // Set a secret key for JWT
+
 
 export default async function handler(req, res) {
     console.log('Login handler called with method:', req.method); // Log the method called

@@ -22,6 +22,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
   const [isCreatePostVisible, setIsCreatePostVisible] = useState(false);
   const [caption, setCaption] = useState("");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [title, setTitle] = useState("");
 
   const goToHome = () => router.push("/");
   const goToProfile = () => router.push("/Profile");
@@ -55,13 +56,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
   };
 
   const sharePost = async () => {
-    if (!caption || !selectedImage) {
-      alert("Please add an image and caption before sharing.");
+    if (!title || !caption || !selectedImage) {
+      alert("Please add a title, image, and caption before sharing.");
       return;
     }
 
     const formData = new FormData();
-    formData.append("title", caption);
+    formData.append("title", title);
     formData.append("content", caption);
     
     // ดึง userId จาก localStorage แทนการใช้ค่าคงที่ "1"
@@ -86,6 +87,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
         alert("Post shared successfully!");
         onNewPost();
         setIsCreatePostVisible(false);
+        setTitle("");
         setSelectedImage(null);
         setCaption("");
       } else {
@@ -243,8 +245,19 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
           <div className={styles.modalContent}>
             <button onClick={closeCreatePost} className={styles.closeButton}>✖</button>
             <h2 className={styles.modalTitle}>Create New Post</h2>
+
+            {/* ช่องใส่ Title */}
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Enter post title..."
+              className={styles.titleInput}
+            />
+
             {selectedImage && (
               <div className={styles.imagePreview}>
+                {title && <h3 className={styles.imageTitle}>{title}</h3>}
                 <Image src={selectedImage} alt="Selected Image" width={500} height={300} />
               </div>
             )}
