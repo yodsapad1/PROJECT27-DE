@@ -137,10 +137,30 @@ const CommentModal: React.FC<CommentModalProps> = ({
   const closeCommentMenu = () => setOpenCommentMenuId(null);
 
   // ฟังก์ชันตัวอย่างสำหรับ Delete, Edit, Report
-  const handleCommentDelete = (commentId: string) => {
-    console.log("Delete comment:", commentId);
-    closeCommentMenu();
-    // TODO: เรียก API ลบคอมเมนต์
+  const handleCommentDelete = async (commentId: string) => {
+    try {
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        alert("User not logged in.");
+        return;
+      }
+      // เรียก API DELETE โดยส่ง commentId ใน path และ userId เป็น query string
+      const response = await fetch(`/api/user_comment/${commentId}?userId=${userId}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Deleted comment:", data);
+        // อัปเดต state เพื่อลบคอมเมนต์ออกจาก UI
+        setComments((prevComments) => prevComments.filter((c) => c.id !== commentId));
+      } else {
+        const errorData = await response.json();
+        alert(errorData.message || "Failed to delete comment");
+      }
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      alert("Failed to delete comment.");
+    }
   };
 
   const handleCommentEdit = (commentId: string) => {
