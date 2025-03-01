@@ -200,3 +200,67 @@
   border-radius: 5px;
   cursor: pointer;
 }
+
+.imagePreviewContainer {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.imageWrapper {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.selectedImage, .image {
+  display: block;
+  max-width: 100%;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.imageNavLeft, .imageNavRight {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  width: 40px;
+  height: 40px;
+  font-size: 22px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background 0.3s;
+  z-index: 10;
+}
+
+.imageNavLeft {
+  left: 15px;
+}
+
+.imageNavRight {
+  right: 15px;
+}
+
+.imageNavLeft:hover, .imageNavRight:hover {
+  background: rgba(0, 0, 0, 0.9);
+}
+
+.imageWrapper .imageNavLeft,
+.imageWrapper .imageNavRight {
+  opacity: 0;                   /* ซ่อนลูกศรโดยค่าเริ่มต้น */
+  transition: opacity 0.3s;
+}
+
+.imageWrapper:hover .imageNavLeft,
+.imageWrapper:hover .imageNavRight {
+  opacity: 1;                   /* เมื่อ hover ให้ลูกศรแสดง */
+}

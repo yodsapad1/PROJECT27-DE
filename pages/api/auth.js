@@ -4,7 +4,7 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-const SECRET_KEY = process.env.JWT_SECRET || 'RnNVoF4XRf3UwSA8WByFOrzU7DOqVI85Htt5R7J/U4s='; // ใช้ JWT_SECRET จาก .env
+const SECRET_KEY = process.env.JWT_SECRET || 'RnNVoF4XRf3UwSA8WByFOrzU7DOqVI85Htt5R7J/U4s='; // Set a secret key for JWT
 
 
 export const authenticateToken = (req, res, next) => {
@@ -20,9 +20,6 @@ export const authenticateToken = (req, res, next) => {
             return res.status(403).json({ message: 'Forbidden' });
         }
 
-  
-        console.log("Decoded token user:", user);
-      
         req.user = user;
         next();
 

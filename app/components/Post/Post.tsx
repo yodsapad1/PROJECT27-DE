@@ -17,7 +17,7 @@ interface PostProps {
   title: string;
   username: string;
   userImage: string;
-  postImage: string;
+  postImages: string[];
   caption: string;
   likes: number;
   comments: Comment[];
@@ -41,7 +41,7 @@ const Post: React.FC<PostProps> = ({
   title,
   username,
   userImage,
-  postImage,
+  postImages,
   caption,
   likes,
   comments = [],
@@ -54,6 +54,7 @@ const Post: React.FC<PostProps> = ({
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const [loggedUserId, setLoggedUserId] = useState<string | null>(currentUserId || null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   useEffect(() => {
     let userId = localStorage.getItem("userId");
@@ -114,7 +115,6 @@ const Post: React.FC<PostProps> = ({
     setMenuOpen(false);
   };
 
-  // เพิ่ม handleEdit เพื่อเปิด EditPostModal
   const handleEdit = () => {
     setIsEditModalOpen(true);
     setMenuOpen(false);
@@ -123,6 +123,18 @@ const Post: React.FC<PostProps> = ({
   const handleReport = () => {
     setIsReportModalOpen(true);
     setMenuOpen(false);
+  };
+
+  const nextImage = () => {
+    if (currentImageIndex < postImages.length - 1) {
+      setCurrentImageIndex(currentImageIndex + 1);
+    }
+  };
+
+  const prevImage = () => {
+    if (currentImageIndex > 0) {
+      setCurrentImageIndex(currentImageIndex - 1);
+    }
   };
 
   return (
@@ -135,23 +147,44 @@ const Post: React.FC<PostProps> = ({
           height={40}
           className={styles.profileImage}
         />
-        <span className={styles.username}>{username}</span>
+        <span className={styles.username}>{username || "Default Name"}</span>
         <div className={styles.menuContainer}>
-          <button onClick={toggleMenu} className={styles.menuButton}>
-            ⋮
-          </button>
+          <button onClick={toggleMenu} className={styles.menuButton}>⋮</button>
         </div>
       </div>
 
+
       <div className={styles.postImage}>
-        {postImage ? (
-          <Image
-            src={postImage}
-            alt="Post"
-            width={500}
-            height={500}
-            className={styles.image}
-          />
+        {postImages && postImages.length > 0 ? (
+          <div className={styles.imagePreviewContainer}>
+            <div className={styles.imageWrapper}>
+              {postImages.length > 1 && (
+                <button
+                  onClick={prevImage}
+                  disabled={currentImageIndex === 0}
+                  className={styles.imageNavLeft}
+                >
+                  &#10094;
+                </button>
+              )}
+              <Image
+                src={postImages[currentImageIndex]}
+                alt="Post"
+                width={500}
+                height={500}
+                className={styles.image}
+              />
+              {postImages.length > 1 && (
+                <button
+                  onClick={nextImage}
+                  disabled={currentImageIndex === postImages.length - 1}
+                  className={styles.imageNavRight}
+                >
+                  &#10095;
+                </button>
+              )}
+            </div>
+          </div>
         ) : (
           <Image
             src="/default-post.jpg"
@@ -173,8 +206,10 @@ const Post: React.FC<PostProps> = ({
         <h2>{title}</h2>
       </div>
 
+
+
       <div className={styles.postCaption}>
-        <strong>{username}</strong> {caption}
+        <strong>{username || "Default Name"}</strong> {caption}
       </div>
 
       {menuOpen && (
@@ -206,7 +241,7 @@ const Post: React.FC<PostProps> = ({
           postId={id}
           initialTitle={title}
           initialCaption={caption}
-          initialImage={postImage}
+          initialImages={postImages} // ส่ง array ของรูปทั้งหมด
           closeModal={() => setIsEditModalOpen(false)}
           onPostUpdated={onDelete ? onDelete : () => {}}
         />
@@ -223,14 +258,17 @@ const Post: React.FC<PostProps> = ({
 
       {isCommentModalOpen && (
         <CommentModal
-          postId={id}
-          postImage={postImage}
-          postOwner={username}
-          comments={comments || []}
+          postId={id}  
+          ownerId={ownerId}  
+          postImage={postImages[0]}  
+          postOwner={username || "Default Name"}  
+          title={title}  // ✅ เพิ่ม title
+          content={caption}  // ✅ เพิ่ม content (ใช้ caption ที่ส่งไป)
           likes={likes}
           onClose={closeCommentModal}
         />
       )}
+
     </div>
   );
 };
