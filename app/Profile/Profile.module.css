@@ -91,3 +91,33 @@
   border-bottom: 2px solid black;
   padding-bottom: 5px;
 }
+
+/* คอนเทนเนอร์ของโพสต์ */
+.postsContainer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+/* การ์ดของโพสต์ */
+.postCard {
+  width: 250px;  /* กำหนดความกว้างของกล่องให้คงที่ */
+  height: 250px; /* กำหนดความสูงของกล่องให้คงที่ */
+  background-color: #f8f8f8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* รูปภาพของโพสต์ */
+.postImage {
+  width: 100%; /* ให้กว้างเต็มพื้นที่ */
+  height: 100%; /* ให้สูงเต็มพื้นที่ */
+  object-fit: contain; /* ทำให้รูปพอดีกับกล่องโดยไม่ถูกครอป */
+  border-radius: 10px;
+}

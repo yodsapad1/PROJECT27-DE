@@ -57,21 +57,22 @@ export default function Home() {
             <Post
               key={post.id}
               id={post.id}
-              username={post.user?.name || `User ${post.userId}`} // ✅ แสดงชื่อเจ้าของโพสต์
-              userImage={post.user?.image || "/default-profile.png"} // ✅ ใช้รูปโปรไฟล์เจ้าของโพสต์
-              postImage={post.images[0] || "/default-post.jpg"}
+              username={post.user?.name || `User ${post.userId}`} // ✅ ใช้ชื่อแทน userId
+              userImage={post.user?.image || "/default-profile.png"} // ✅ ใช้รูปโปรไฟล์
+              postImages={post.images && post.images.length > 0 ? post.images : ["/default-post.jpg"]}
               title={post.title}
               caption={post.content}
               likes={0}
-              comments={0}
-              ownerId={post.userId} // ID ของเจ้าของโพสต์ที่บันทึกในฐานข้อมูล
-              currentUserId={session?.user?.id || ""} // ดึงจาก session ที่ถูกต้อง
-              onDelete={() => handlePostDeleted(post.id)} // ✅ อัปเดต UI ทันที
+              comments={post.comments || []}
+              ownerId={post.userId}
+              currentUserId={session?.user?.id || ""}
+              onDelete={() => handlePostDeleted(post.id)}
             />
           ))
         ) : (
           <p className="text-center text-gray-500">No posts yet.</p>
         )}
+
       </div>
     </div>
   );

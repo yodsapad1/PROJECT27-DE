@@ -1,3 +1,4 @@
+/* ✅ ปรับโครงสร้างพื้นหลังของ Modal */
 .modalOverlay {
   position: fixed;
   top: 0;
@@ -11,27 +12,46 @@
   z-index: 1000;
 }
 
+/* ✅ ปรับขนาดของ Modal */
 .modalContent {
   background: #fff;
   border-radius: 12px;
   width: 90%;
-  max-width: 1000px;
-  height: 600px; /* กำหนดความสูงของกล่องให้คงที่ */
+  max-width: 1100px;
+  height: 700px;
   display: flex;
   position: relative;
-  overflow: hidden; /* ป้องกันเนื้อหาเกิน */
+  overflow: hidden;
 }
 
+/* ✅ ปุ่มปิด Modal */
 .closeButton {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.7);
+  color: rgb(0, 0, 0);
   border: none;
   font-size: 20px;
+  font-weight: bold;
   cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+  transition: background 0.2s ease-in-out, transform 0.1s ease-in-out;
 }
 
+.closeButton:hover {
+  background: rgb(255, 255, 255);
+  transform: scale(1.1);
+}
+
+/* ✅ โครงสร้างของ Modal */
 .postContainer {
   display: flex;
   width: 100%;
@@ -44,13 +64,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden; /* ป้องกันรูปภาพเกินขอบ */
+  overflow: hidden;
 }
 
 .imageSection img {
   max-width: 100%;
   max-height: 100%;
-  object-fit: contain; /* ป้องกันรูปภาพบิดเบี้ยว */
+  object-fit: contain;
 }
 
 .commentSection {
@@ -59,35 +79,73 @@
   flex-direction: column;
   padding: 15px;
   overflow: hidden;
-
 }
 
-.postOwner {
+/* ✅ ปรับหัวโพสต์ให้เป็นแนวนอน */
+.postHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* ทำให้ชื่ออยู่ซ้าย และ 3 จุดอยู่ขวา */
+  width: 100%;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.ownerProfile {
   font-size: 16px;
   font-weight: bold;
-  margin-bottom: 10px;
 }
 
+/* ✅ ปรับปุ่ม 3 จุด (⋮) */
+.menuButton {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ✅ เมนูของ 3 จุด */
+.modalMenu {
+  position: absolute;
+  top: 40px;
+  right: 10px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  z-index: 2000;
+}
+
+.modalButton {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  background-color: #f7f7f7;
+  border-radius: 5px;
+}
+
+.modalButton:hover {
+  background-color: #e0e0e0;
+}
+
+/* ✅ ปรับโครงสร้างคอมเมนต์ */
 .commentList {
   flex-grow: 1;
   overflow-y: auto;
   max-height: 600px;
   padding: 5px;
 }
-.commentInput {
-  display: flex;
-  align-items: center;
-  margin-top: auto;  
-  gap: 5px;
-}
-
-.textInput {
-  flex-grow: 1;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
 
 .commentItem {
   position: relative;
@@ -99,36 +157,86 @@
   white-space: normal;
 }
 
-.commentContent {
-  margin-bottom: 5px;
-}
-
-
-.commentMenuButton {
-  background: none;
-  border: none;
-  font-size: 18px;
-  cursor: pointer;
-  padding: 5px;
-}
-
-/* ส่วน reply + 3 จุด */
-.replySection {
-  margin-top: 5px;
+/* ✅ ส่วนป้อนคอมเมนต์ */
+.commentInput {
   display: flex;
   align-items: center;
-  font-size: 14px;
-  color: #555;
-  gap: 10px;
+  margin-top: auto;
+  gap: 5px;
 }
 
-.replyText {
-  cursor: pointer;
+.textInput {
+  flex-grow: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
 
-.replyDots {
-  cursor: pointer;
+.plusButton {
+  width: 40px;
+  height: 40px;
+  background-color: #eee;
+  border: none;
+  border-radius: 50%;
   font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.postButton {
+  padding: 8px 12px;
+  background-color: #0095f6;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.postDetails {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.postMeta {
+  font-size: 14px;
+  font-weight: normal;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 5px; /* เพิ่มช่องว่างเล็กน้อยระหว่างชื่อและข้อความ */
+}
+
+.modalMenuOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* ✅ เพิ่มเงาดำเข้มขึ้น */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* ✅ อยู่ด้านบน */
+}
+
+.modalMenu {
+  position: fixed;
+  top: 50%; /* ✅ จัดให้อยู่ตรงกลางแนวตั้ง */
+  left: 50%; /* ✅ จัดให้อยู่ตรงกลางแนวนอน */
+  transform: translate(-50%, -50%); /* ✅ ปรับตำแหน่งให้พอดี */
+  background: #fff; /* ✅ พื้นหลังสีขาว */
+  padding: 20px;
+  border-radius: 10px; /* ✅ มุมโค้ง */
+  text-align: center;
+  width: 600px; /* ✅ กำหนดขนาดเมนูให้แน่นอน */
+  max-width: 100%; /* ✅ ป้องกันการใหญ่เกินขนาดหน้าจอ */
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3); /* ✅ เพิ่มเงาให้ลอยขึ้น */
+  z-index: 1100; /* ✅ ให้อยู่บนสุด */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .commentMenuOverlay {
@@ -169,106 +277,4 @@
 }
 
 
-/* ส่วนที่มีอยู่แล้วสำหรับ commentImage, commentList, ฯลฯ */
-.commentImage {
-  margin-top: 5px;
-}
-
-.commentImage img {
-  width: 200px;
-  height: 200px;
-  object-fit: cover;
-  border-radius: 5px;
-}
-
-.postActions {
-  font-size: 14px;
-  margin-top: 10px;
-}
-
-/* สำหรับรูปคอมเมนต์ที่แสดง */
-.commentImage {
-  margin-top: 5px;
-}
-.commentImage img {
-  width: 60%;
-  border-radius: 5px;
-}
-
-.commentInput {
-  display: flex;
-  align-items: center;
-  margin-top: auto;  /* ดันช่องคอมเมนต์ให้ไปด้านล่าง */
-  /* ถ้าต้องการปรับระยะห่างเพิ่มได้ */
-  gap: 5px;
-}
-
-.commentInput input[type="text"] {
-  flex-grow: 1;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-}
-
-.commentInput button {
-  padding: 8px 12px;
-  margin-left: 5px;
-  background-color: #0095f6;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-/* ปุ่มบวกสำหรับเลือกภาพ */
-.plusButton {
-  padding: 8px;
-  background-color: #eee;
-  border: none;
-  border-radius: 50%;
-  font-size: 18px;
-  cursor: pointer;
-}
-
-.postButton {
-  padding: 8px 12px;
-  background-color: #0095f6;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-/* สำหรับ modal preview รูป */
-.previewOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1100;
-}
-
-.previewContent {
-  position: relative;
-  max-width: 90%;
-  max-height: 90%;
-}
-
-.closePreviewButton {
-  position: absolute;
-  top: -10px;
-  right: -10px;
-  background: #fff;
-  border: none;
-  border-radius: 50%;
-  font-size: 24px;
-  cursor: pointer;
-  padding: 5px 10px;
-  z-index: 1200;
-}
 

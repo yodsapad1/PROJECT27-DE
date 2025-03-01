@@ -1,9 +1,8 @@
-'use client';
-
+"use client";
 import { useState } from "react";
 import styles from "./Sidebar.module.css";
 import Image from "next/image";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 
 interface SidebarProps {
   onNewPost: () => void;
@@ -21,8 +20,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
   const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [isCreatePostVisible, setIsCreatePostVisible] = useState(false);
   const [caption, setCaption] = useState("");
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [title, setTitle] = useState("");
+  // เปลี่ยนเป็น array เพื่อรองรับหลายรูป
+  const [selectedImages, setSelectedImages] = useState<string[]>([]);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const goToHome = () => router.push("/");
   const goToProfile = () => router.push("/Profile");
@@ -45,27 +46,45 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
     const fileInput = document.createElement("input");
     fileInput.type = "file";
     fileInput.accept = "image/*";
+    fileInput.multiple = true;
     fileInput.onchange = (event) => {
-      const file = (event.target as HTMLInputElement).files?.[0];
-      if (file) {
-        setSelectedImage(URL.createObjectURL(file));
+      const files = (event.target as HTMLInputElement).files;
+      if (files) {
+        const imageUrls = Array.from(files).map((file) =>
+          URL.createObjectURL(file)
+        );
+        setSelectedImages(imageUrls);
+        setCurrentImageIndex(0);
         setIsCreatePostVisible(true);
       }
     };
     fileInput.click();
   };
 
+  const nextImage = () => {
+    if (currentImageIndex < selectedImages.length - 1) {
+      setCurrentImageIndex(currentImageIndex + 1);
+    }
+  };
+
+  const prevImage = () => {
+    if (currentImageIndex > 0) {
+      setCurrentImageIndex(currentImageIndex - 1);
+    }
+  };
+
   const sharePost = async () => {
-    if (!title || !caption || !selectedImage) {
-      alert("Please add a title, image, and caption before sharing.");
+    // ตรวจสอบว่า title, caption และ selectedImages มีค่า
+    if (!title || !caption || selectedImages.length === 0) {
+      alert("Please add a title, image(s), and caption before sharing.");
       return;
     }
 
     const formData = new FormData();
     formData.append("title", title);
     formData.append("content", caption);
-    
-    // ดึง userId จาก localStorage แทนการใช้ค่าคงที่ "1"
+
+    // ดึง userId จาก localStorage
     const userId = localStorage.getItem("userId");
     if (!userId) {
       alert("User not found. Please log in again.");
@@ -73,8 +92,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
     }
     formData.append("userId", userId);
 
-    const imageBlob = await fetch(selectedImage).then((r) => r.blob());
-    formData.append("images", imageBlob, "image.jpg");
+    // วนลูปเพื่อเพิ่มทุกรูปที่เลือก
+    for (let i = 0; i < selectedImages.length; i++) {
+      const imageBlob = await fetch(selectedImages[i]).then((r) => r.blob());
+      formData.append("images", imageBlob, `image${i}.jpg`);
+    }
 
     try {
       const response = await fetch("/api/user_post", {
@@ -82,13 +104,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
         credentials: "include",
         body: formData,
       });
-      
+
       if (response.ok) {
         alert("Post shared successfully!");
         onNewPost();
         setIsCreatePostVisible(false);
         setTitle("");
-        setSelectedImage(null);
+        setSelectedImages([]);
         setCaption("");
       } else {
         const errorData = await response.json();
@@ -101,6 +123,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
 
   const closeCreatePost = () => {
     setIsCreatePostVisible(false);
+    setSelectedImages([]);
   };
 
   const toggleSwitchAppearance = () => {
@@ -109,7 +132,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
       setIsMoreOpen(false);
     }
   };
-  
+
   const closeSwitchAppearance = () => {
     setIsSwitchAppearanceOpen(false);
   };
@@ -120,10 +143,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
-    localStorage.removeItem('userId');
-    window.location.href = '/Login';
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("user");
+    localStorage.removeItem("userId");
+    window.location.href = "/Login";
   };
 
   return (
@@ -246,7 +269,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
             <button onClick={closeCreatePost} className={styles.closeButton}>✖</button>
             <h2 className={styles.modalTitle}>Create New Post</h2>
 
-            {/* ช่องใส่ Title */}
             <input
               type="text"
               value={title}
@@ -255,12 +277,36 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
               className={styles.titleInput}
             />
 
-            {selectedImage && (
-              <div className={styles.imagePreview}>
-                {title && <h3 className={styles.imageTitle}>{title}</h3>}
-                <Image src={selectedImage} alt="Selected Image" width={500} height={300} />
+            {selectedImages.length > 0 && (
+              <div className={styles.imagePreviewContainer}>
+                <div className={styles.imageWrapper}>
+                  <button
+                    onClick={prevImage}
+                    disabled={currentImageIndex === 0}
+                    className={styles.imageNavLeft}
+                  >
+                    &#10094;
+                  </button>
+
+                  <Image
+                    src={selectedImages[currentImageIndex]}
+                    alt="Selected Image"
+                    width={500}
+                    height={300}
+                    className={styles.selectedImage}
+                  />
+
+                  <button
+                    onClick={nextImage}
+                    disabled={currentImageIndex === selectedImages.length - 1}
+                    className={styles.imageNavRight}
+                  >
+                    &#10095;
+                  </button>
+                </div>
               </div>
             )}
+
             <textarea
               value={caption}
               onChange={(e) => setCaption(e.target.value)}

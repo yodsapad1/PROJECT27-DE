@@ -1,21 +1,47 @@
-// pages/api/posts.js
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
 export default async function handler(req, res) {
-    try {
-        // ดึงข้อมูลโพสต์ทั้งหมด
-        const posts = await prisma.post.findMany();
+    if (req.method === 'GET') {
+        try {
+            const posts = await prisma.post.findMany({
+                include: {
+                    user: {
+                        select: {
+                            id: true,
+                            name: true,
+                            profileImage: true,
+                        },
+                    },
+                },
+            });
 
-        // ส่งคืนข้อมูลโพสต์
-        res.status(200).json(posts);
-    } catch (error) {
-        // ป้องกันข้อผิดพลาดในกรณีที่ error เป็น null
-        console.error("Error fetching posts:", error instanceof Error ? error.message : JSON.stringify(error));
-        res.status(500).json({ error: 'Internal Server Error', details: error instanceof Error ? error.message : 'Unknown error' });
-    } finally {
-        // ปิดการเชื่อมต่อกับ Prisma
-        await prisma.$disconnect();
+            // ตรวจสอบว่ามี images และ user หรือไม่
+            const formattedPosts = posts.map(post => ({
+                id: post.id,
+                title: post.title,
+                content: post.content,
+                images: Array.isArray(post.images) ? post.images : [],
+                userId: post.user ? post.user.id : "unknown",
+                user: post.user ? { 
+                    name: post.user.name, 
+                    image: post.user.profileImage || "/default-profile.png"
+                } : { 
+                    name: "Unknown User",
+                    image: "/default-profile.png"
+                }
+            }));
+
+            res.status(200).json(formattedPosts);
+        } catch (error) {
+            console.error("❌ Error fetching posts:", error);
+            res.status(500).json({ error: 'Internal Server Error', details: error.message });
+        } finally {
+            await prisma.$disconnect();
+        }
+    } else {
+        res.setHeader('Allow', ['GET']);
+        res.status(405).end(`Method ${req.method} Not Allowed`);
     }
 }
