@@ -2,7 +2,6 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs'; // Ensure bcrypt library is installed
 import jwt from 'jsonwebtoken'; // Import jsonwebtoken
 
-
 const prisma = new PrismaClient();
 
 const SECRET_KEY = process.env.JWT_SECRET || 'your_secret_key'; // Set a secret key for JWT
@@ -14,12 +13,15 @@ export default async function handler(req, res) {
         return res.status(405).json({ message: 'Only POST requests are allowed.' });
     }
 
-    // ❌ ผิด: `const body = await req.json();`
-    // ✅ ใช้ req.body แทน
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
         return res.status(400).json({ message: 'Name, email, and password are required.' });
+    }
+
+    // ตรวจสอบอีเมลว่าไม่ควรมีคำว่า "admin"
+    if (email.includes('admin')) {
+        return res.status(400).json({ message: 'Email cannot contain the word "admin".' });
     }
 
     try {
@@ -43,7 +45,6 @@ export default async function handler(req, res) {
         const token = jwt.sign({ id: newUser.id, email: newUser.email }, SECRET_KEY, { expiresIn: '1h' });
 
         // Success response
-
         res.status(201).json({
             message: 'User registered successfully!',
             token, // Include the JWT token in the response
