@@ -8,14 +8,14 @@ datasource db {
 }
 
 model User {
-  id       String   @id @default(cuid()) @map("_id") // Maps to MongoDB _id
+  id       String     @id @default(cuid()) @map("_id") // Maps to MongoDB _id
   name     String
-  email    String   @unique
-  password String?  // Password can be optional or null
-  profileImage  String?
-  posts    Post[]   @relation("UserPosts") // One User can have many Posts
-  comments Comment[] @relation("UserComments") // One User can have many Comments
-  reports   Report[] @relation("UserReports") // One User can report many Posts
+  email    String     @unique
+  password String?    // Password can be optional or null
+  posts    Post[]     @relation("UserPosts") // One User can have many Posts
+  comments Comment[]  @relation("UserComments") // One User can have many Comments
+  reports   Report[]  @relation("UserReports") // One User can report many Posts
+  replies   Reply[]    @relation("UserReplies") // One User can have many Replies
 }
 
 model Post {
@@ -40,6 +40,19 @@ model Comment {
   user      User     @relation(fields: [userId], references: [id], name: "UserComments") // Link to User
   createdAt DateTime @default(now()) // Creation date of the comment
   images    String[] // Multiple image URLs related to the comment
+  replies   Reply[]  @relation("CommentReplies") // Replies associated with this comment
+}
+
+model Reply {
+  id                  String   @id @default(cuid()) @map("_id") // MongoDB _id
+  content             String   // Content of the reply
+  originalCommentId   String   // ID of the comment this reply belongs to
+  userId             String    // ID of the user who made the reply
+  createdAt          DateTime @default(now()) // Creation date of the reply
+  images             String[] // Multiple image URLs related to the reply
+
+  comment            Comment  @relation(fields: [originalCommentId], references: [id], name: "CommentReplies") // Link to Comment
+  user               User     @relation(fields: [userId], references: [id], name: "UserReplies") // Link to User
 }
 
 model Report {

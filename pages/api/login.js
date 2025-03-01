@@ -3,7 +3,9 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
+
 const SECRET_KEY = process.env.JWT_SECRET || 'RnNVoF4XRf3UwSA8WByFOrzU7DOqVI85Htt5R7J/U4s='; // Set a secret key for JWT
+
 
 export default async function handler(req, res) {
     console.log('Login handler called with method:', req.method); // Log the method called
@@ -40,7 +42,7 @@ export default async function handler(req, res) {
         }
 
         // Create JWT token
-        const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '1w' });
+        const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '12h' });
 
         // Respond with success message and user info (omit password for security)
         res.status(200).json({ message: 'Login successful!', token, user: { id: user.id, name: user.name, email: user.email } });
