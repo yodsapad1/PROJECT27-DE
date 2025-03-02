@@ -19,11 +19,6 @@ export default async function handler(req, res) {
         return res.status(400).json({ message: 'Name, email, and password are required.' });
     }
 
-    // ตรวจสอบอีเมลว่าไม่ควรมีคำว่า "admin"
-    if (email.includes('admin')) {
-        return res.status(400).json({ message: 'Email cannot contain the word "admin".' });
-    }
-
     try {
         console.log('Checking for existing user with email:', email);
 
@@ -37,18 +32,33 @@ export default async function handler(req, res) {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        // ✅ สร้าง user โดยกำหนด role เป็น 'user'
         const newUser = await prisma.user.create({
-            data: { name, email, password: hashedPassword },
+            data: { 
+                name, 
+                email, 
+                password: hashedPassword,
+                role: 'user' // กำหนดค่า default เป็น 'user'
+            },
         });
 
-        // Create JWT token
-        const token = jwt.sign({ id: newUser.id, email: newUser.email }, SECRET_KEY, { expiresIn: '1h' });
+        // ✅ สร้าง JWT Token พร้อม role
+        const token = jwt.sign(
+            { id: newUser.id, email: newUser.email, role: newUser.role }, 
+            SECRET_KEY, 
+            { expiresIn: '1h' }
+        );
 
-        // Success response
+        // ✅ ส่งข้อมูล user พร้อม role กลับไปยัง frontend
         res.status(201).json({
             message: 'User registered successfully!',
-            token, // Include the JWT token in the response
-            user: { id: newUser.id, name: newUser.name, email: newUser.email },
+            token, 
+            user: { 
+                id: newUser.id, 
+                name: newUser.name, 
+                email: newUser.email, 
+                role: newUser.role // ส่ง role กลับให้ frontend ใช้งาน
+            },
         });
     } catch (error) {
         console.error('Error registering user:', error);

@@ -53,7 +53,6 @@ model Reply {
   userId             String    // ID of the user who made the reply
   createdAt          DateTime @default(now()) // Creation date of the reply
   images             String[] // Multiple image URLs related to the reply
-
   comment            Comment  @relation(fields: [originalCommentId], references: [id], name: "CommentReplies") // Link to Comment
   user               User     @relation(fields: [userId], references: [id], name: "UserReplies") // Link to User
 }
@@ -67,18 +66,4 @@ model Report {
 
   user      User     @relation(fields: [userId], references: [id], name: "UserReports") // Link to User
   post      Post     @relation(fields: [postId], references: [id], name: "PostReports") // Link to Post
-}
-
-model Reply {
-  id                String   @id @default(cuid()) @map("_id")
-  content           String
-  originalCommentId String
-  userId            String
-  images            String[]
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-
-  // คุณสามารถเพิ่ม relation ได้ตามต้องการ เช่น ถ้าอยากลิงค์กับ Comment หรือ User
-  // comment           Comment?  @relation(fields: [originalCommentId], references: [id])
-  // user              User      @relation(fields: [userId], references: [id])
 }

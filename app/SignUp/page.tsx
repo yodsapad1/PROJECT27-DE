@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from "next/link";
 import styles from './SignUp.module.css';
+import { FaEye, FaEyeSlash } from "react-icons/fa";
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('');
@@ -12,6 +13,7 @@ export default function SignUpPage() {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -19,13 +21,13 @@ export default function SignUpPage() {
     setMessage('');
     setError('');
     setLoading(true);
-
+  
     if (!email || !username || !password) {
       setError('All fields are required.');
       setLoading(false);
       return;
     }
-
+  
     try {
       const response = await fetch('/api/register', {
         method: 'POST',
@@ -39,15 +41,18 @@ export default function SignUpPage() {
           password,
         }),
       });
-
+  
       const data = await response.json();
-
+  
       if (response.ok) {
         setMessage('Signup successful! Logging in...');
-        // เก็บ token, userId และข้อมูลผู้ใช้ลง localStorage
         localStorage.setItem('token', data.token);
         localStorage.setItem('userId', data.user.id);
         localStorage.setItem('user', JSON.stringify(data.user));
+  
+        const userRole = data.user.role || 'user'; 
+        localStorage.setItem('role', userRole);
+  
         router.push('/');
       } else {
         setError(data.message || 'Signup failed. Please try again.');
@@ -59,7 +64,7 @@ export default function SignUpPage() {
       setLoading(false);
     }
   };
-
+  
   return (
     <div className={styles.signupContainer}>
       <div className={styles.leftSide}>
@@ -73,7 +78,7 @@ export default function SignUpPage() {
               <label className={styles.labelLeft}>Email</label>
               <input
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value.trim())} // ✅ ตัดช่องว่างอัตโนมัติ
                 type="email"
                 placeholder="Enter your email"
                 className={styles.customInput}
@@ -93,14 +98,23 @@ export default function SignUpPage() {
             </div>
             <div className={styles.inputGroup}>
               <label className={styles.labelLeft}>Password</label>
-              <input
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                type="password"
-                placeholder="Enter your password"
-                className={styles.customInput}
-                required
-              />
+              <div className={styles.passwordWrapper}>
+                <input
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  className={styles.customInput}
+                  required
+                />
+                <button
+                  type="button"
+                  className={styles.showPasswordButton}
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </button>
+              </div>
             </div>
             <button type="submit" className={styles.signupButton}>
               {loading ? 'Loading...' : 'Sign Up'}

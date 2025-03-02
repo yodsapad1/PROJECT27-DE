@@ -55,6 +55,8 @@ const Post: React.FC<PostProps> = ({
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
   const [loggedUserId, setLoggedUserId] = useState<string | null>(currentUserId || null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+
 
   useEffect(() => {
     let userId = localStorage.getItem("userId");
@@ -89,6 +91,8 @@ const Post: React.FC<PostProps> = ({
       return;
     }
 
+    setIsLoading(true); // ✅ เริ่มโหลด
+
     try {
       const response = await fetch(`/api/deletePost?postId=${id}`, {
         method: "DELETE",
@@ -99,9 +103,10 @@ const Post: React.FC<PostProps> = ({
         credentials: "include",
       });
 
-      if (response.status === 204) {
+      if (response.status === 204 || response.ok) {
         alert("Post deleted successfully!");
         if (onDelete) onDelete();
+        window.location.reload(); // ✅ รีโหลดหน้าใหม่หลังลบโพสต์
       } else {
         const responseData = await response.json();
         console.log("Delete response:", responseData);
@@ -112,6 +117,7 @@ const Post: React.FC<PostProps> = ({
       alert("Failed to delete post.");
     }
 
+    setIsLoading(false); // ✅ หยุดโหลด
     setMenuOpen(false);
   };
 

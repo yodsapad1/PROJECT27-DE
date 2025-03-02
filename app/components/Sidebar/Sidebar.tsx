@@ -152,7 +152,10 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
   return (
     <>
       <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ""}`}>
-        <div className={styles.logo}></div>
+        <div className={styles.logoContainer}>
+          <div className={styles.logo}></div>
+        </div>
+
 
         <nav className={styles.sidebarNav}>
           <ul>

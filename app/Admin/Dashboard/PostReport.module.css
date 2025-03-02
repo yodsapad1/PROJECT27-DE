@@ -1,0 +1,252 @@
+/* การตั้งค่าของ container หลัก */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f8f9fa; /* สีพื้นหลังอ่อน */
+  }
+  
+  /* การตั้งค่า card */
+  .card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* เงาเบา */
+    width: 100%;
+    max-width: 800px;
+    margin: 20px;
+  }
+  
+  /* หัวข้อของ card */
+  .title {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  /* รายการรายงานใน card */
+  .reportList {
+    list-style: none;
+    padding: 0;
+    max-height: 400px;  /* กำหนดความสูงสูงสุด */
+    overflow-y: auto;   /* ทำให้เลื่อนในแนวตั้งได้ */
+  }
+  
+  /* การตั้งค่ารายการแต่ละรายการในรายงาน */
+  .reportItem {
+    display: flex;
+    align-items: center;
+    background: #f1f3f5; /* พื้นหลังสีอ่อน */
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+  }
+  
+  /* รูปโปรไฟล์ (avatar) */
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #ccc; /* สีพื้นหลังเบา */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: bold;
+    margin-right: 10px;
+  }
+  
+  /* เนื้อความในรายการ */
+  .text {
+    flex-grow: 1;
+  }
+  
+  /* ชื่อผู้ใช้ */
+  .username {
+    font-weight: bold;
+  }
+  
+  /* ข้อความรายงาน */
+  .message {
+    color: #868e96; /* สีเทา */
+    font-size: 14px;
+  }
+  
+  /* การตั้งค่าปุ่มในแต่ละรายการ */
+  .actions {
+    display: flex;
+    gap: 8px;
+  }
+  
+  /* การตั้งค่าปุ่มต่างๆ */
+  .button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  /* ปุ่ม Detail */
+  .detail {
+    background: #495057; /* สีเทาเข้ม */
+    color: white;
+  }
+  
+  /* ปุ่ม Delete */
+  .delete {
+    background: #d9534f; /* สีแดง */
+    color: white;
+  }
+  
+  /* Sidebar สำหรับการแสดงเมนูข้าง */
+  .Sidebar-module__sTeV3q__sidebar {
+    background-color: #fefefe; /* สีพื้นหลังของ Sidebar */
+    width: 280px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 2rem 1rem;
+    transition: width 0.3s; /* การเปลี่ยนแปลงขนาดของ Sidebar */
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    border-right: 2px solid #ebebeb; /* ขอบขวาของ Sidebar */
+  }
+  
+  /* กำหนดสไตล์ของ Modal */
+  .modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5); /* พื้นหลังที่มืดลงเมื่อเปิด Modal */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000; /* อยู่เหนือองค์ประกอบอื่น */
+  }
+  
+  .modalContent {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
+  
+  .modalTitle {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  .postDetailContainer {
+    padding: 10px;
+  }
+  
+  .postHeader {
+    margin-bottom: 20px;
+  }
+  
+  .username {
+    font-weight: bold;
+    font-size: 18px;
+  }
+  
+  .message {
+    color: #868e96;
+    font-size: 14px;
+  }
+  
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .cancelButton {
+    background-color: #d9534f;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor:
+     pointer;
+  }
+  
+  /* Sidebar */
+  .sidebar {
+    background-color: #fefefe;
+    width: 280px;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* เปลี่ยนจาก space-between เป็น flex-start เพื่อให้ปุ่มชิดกัน */
+    padding: 2rem 1rem;
+    transition: width .3s;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    border-right: 2px solid #ebebeb;
+  }
+  
+  .sidebar.collapsed {
+    width: 80px;
+    padding: 2rem 0.5rem;
+  }
+  
+  .sidebarNav ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .sidebarNav ul li {
+    margin-bottom: 0; /* เอาระยะห่างระหว่างเมนูออก */
+  }
+  
+  .menuItem {
+    background: none;
+    border: none;
+    text-align: left;
+    padding: 0.5rem 1rem;
+    width: 100%;
+    font-size: 16px;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: background 0.3s;
+    margin-bottom: 0; /* เอาระยะห่างด้านล่างของปุ่มออก */
+  }
+  
+  .menuItem:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  .active {
+    color: red;
+    font-weight: bold;
+  }
+
+  .logoutButton {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    margin-top: auto;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .logoutButton:hover {
+    background-color: #d32f2f;
+  }
+  

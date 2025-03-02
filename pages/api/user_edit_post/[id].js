@@ -3,7 +3,7 @@ import { IncomingForm } from "formidable";
 import fs from "fs/promises";
 import path from "path";
 import { getServerSession } from "next-auth/next";
-import { authenticateToken } from "../auth"; // Ensure the path is correct
+import { authMiddleware } from "../auth"; // Ensure the path is correct
 
 const prisma = new PrismaClient();
 
@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   const { query: { id } } = req;
 
   if (req.method === "PUT") {
-    const session = await getServerSession(req, res, authenticateToken);
+    const session = await getServerSession(req, res, authMiddleware);
 
     const form = new IncomingForm();
     form.parse(req, async (err, fields, files) => {
