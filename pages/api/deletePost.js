@@ -1,54 +1,65 @@
 import { PrismaClient } from '@prisma/client';
-import { authenticateToken } from './auth';
+import { authMiddleware } from './auth';
 
 const prisma = new PrismaClient();
 
-// API Handler for deleting a post and its associated comments
 export default async function handler(req, res) {
-    const { query: { postId } } = req; // Retrieve post ID from query parameters
+    const { query: { postId } } = req;
 
-    if (req.method === 'DELETE') {
-        authenticateToken(req, res, async () => {
-            const loggedInUserId = req.user.id;
+    if (req.method !== 'DELETE') {
+        return res.status(405).json({ message: `Method ${req.method} Not Allowed` });
+    }
 
-            // Log the token and logged-in user ID
-            console.log('Token:', req.headers.authorization); // Log the token
-            console.log('Logged In User ID:', loggedInUserId); // Log the User ID
+    if (!postId) {
+        return res.status(400).json({ message: 'Invalid request: postId is required' });
+    }
 
-            try {
-                // Find the existing post
-                const existingPost = await prisma.post.findUnique({
-                    where: { id: String(postId) }
+    authMiddleware(req, res, async () => {
+        const loggedInUserId = req.user.id;
+        console.log('Token:', req.headers.authorization);
+        console.log('Logged In User ID:', loggedInUserId);
+
+        try {
+            const existingPost = await prisma.post.findUnique({
+                where: { id: String(postId) },
+                include: {
+                    comments: { select: { id: true, replies: { select: { id: true } } } }
+                }
+            });
+
+            if (!existingPost) {
+                return res.status(404).json({ message: 'Post not found.' });
+            }
+
+            if (String(existingPost.userId) !== String(loggedInUserId)) {
+                console.error(`Unauthorized access: User ID: ${loggedInUserId}, Post Owner ID: ${existingPost.userId}`);
+                return res.status(403).json({ message: 'Forbidden: You are not the owner of this post.' });
+            }
+
+            await prisma.$transaction(async (tx) => {
+                // ลบ Replies
+                const commentIds = existingPost.comments.map(comment => comment.id);
+                if (commentIds.length > 0) {
+                    await tx.reply.deleteMany({
+                        where: { originalCommentId: { in: commentIds } },
+                    });
+                }
+
+                // ลบ Comments
+                await tx.comment.deleteMany({
+                    where: { postId: String(postId) },
                 });
 
-                if (!existingPost) {
-                    return res.status(404).json({ message: 'Post not found.' });
-                }
+                // ลบโพสต์
+                await tx.post.delete({ where: { id: String(postId) } });
+            });
 
-                console.log("Post Owner ID:", existingPost.userId);
+            console.log("✅ Post deleted successfully.");
+            return res.status(200).json({ message: "Post deleted successfully" });
 
-                // Check ownership
-                if (String(existingPost.userId) !== String(loggedInUserId)) {
-                    console.error(`Unauthorized access: User ID: ${loggedInUserId}, Post Owner ID: ${existingPost.userId}`);
-                    return res.status(403).json({ message: 'Forbidden: You are not the owner of this post.' });
-                }
-
-                // Delete associated comments
-                const deletedComments = await prisma.comment.deleteMany({ where: { postId: String(postId) } });
-                console.log(`Deleted associated comments: ${deletedComments.count}`);
-
-                // Delete the post
-                await prisma.post.delete({ where: { id: String(postId) } });
-                console.log("Post deleted successfully.");
-
-                return res.status(204).end();
-            } catch (error) {
-                console.error('Error deleting post:', error);
-                return res.status(500).json({ message: 'Failed to delete post.', detail: error.message });
-            }
-        });
-    } else {
-        res.setHeader('Allow', ['DELETE']);
-        return res.status(405).end(`Method ${req.method} Not Allowed`);
-    }
+        } catch (error) {
+            console.error('❌ Error deleting post:', error);
+            return res.status(500).json({ message: 'Failed to delete post.', detail: error.message });
+        }
+    });
 }

@@ -2,7 +2,7 @@ import { PrismaClient } from "@prisma/client";
 import multer from "multer";
 import fs from "fs";
 import path from "path";
-import { authenticateToken } from "./auth"; // Middleware ตรวจสอบ Token
+import { authMiddleware } from "./auth";
 
 const prisma = new PrismaClient();
 
@@ -18,6 +18,7 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) => {
     cb(null, `${Date.now()}-${file.originalname}`);
   },
+});
 
 
 const upload = multer({ storage: storage });
@@ -29,7 +30,7 @@ export const config = {
 };
 
 export default async function handler(req, res) {
-  authenticateToken(req, res, async () => {
+  authMiddleware(req, res, async () => {
     if (req.method === "GET") {
       try {
         const { id } = req.user; // ดึง `id` ของผู้ใช้จาก token

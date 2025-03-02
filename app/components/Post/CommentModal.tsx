@@ -55,6 +55,8 @@ const CommentModal: React.FC<CommentModalProps> = ({
   const [menuOpen, setMenuOpen] = useState(false);
   const [loggedUserId, setLoggedUserId] = useState<string | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+  
 
 
 
@@ -83,6 +85,48 @@ const CommentModal: React.FC<CommentModalProps> = ({
     };
     fetchComments();
   }, [postId]);
+
+  useEffect(() => {
+    const fetchCommentsAndReplies = async () => {
+      try {
+        console.log(`Fetching comments for postId: ${postId}`);
+        const response = await fetch(`/api/user_comment/${postId}`);
+        if (!response.ok) {
+          if (response.status === 404) {
+            console.warn("No comments found.");
+            setComments([]);
+            setRepliesMap({});
+          } else {
+            throw new Error("Failed to fetch comments");
+          }
+        } else {
+          const data = await response.json();
+          console.log("Comments loaded:", data);
+          setComments(data);
+  
+          // ✅ โหลด replies สำหรับทุก comment ที่มี
+          const repliesData = {};
+          await Promise.all(
+            data.map(async (comment) => {
+              const res = await fetch(`/api/replies/${comment.id}`);
+              if (res.ok) {
+                const replyList = await res.json();
+                repliesData[comment.id] = replyList;
+              } else {
+                repliesData[comment.id] = [];
+              }
+            })
+          );
+          setRepliesMap(repliesData);
+        }
+      } catch (error) {
+        console.error("Error fetching comments and replies:", error);
+      }
+    };
+  
+    fetchCommentsAndReplies();
+  }, [postId]); // ✅ โหลดข้อมูลใหม่เมื่อ postId เปลี่ยน
+  
 
   useEffect(() => {
     // ปิดการเลื่อนพื้นหลังเมื่อเปิดโมเดล

@@ -486,4 +486,20 @@
   background: rgba(0, 0, 0, 0.9);
 }
 
+.logo img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover; /* ✅ ให้ภาพไม่เสียสัดส่วน */
+}
+
+
+
+.logo {
+  width: 150px;
+  height: 100px;
+  background-image: url('/assets/888.png');
+  background-size: cover;
+  background-position: center;
+}
+
 

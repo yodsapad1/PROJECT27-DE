@@ -11,7 +11,7 @@ interface Post {
   title: string;
   content: string;
   images: string[] | null;
-  ownerId: string; // ✅ เพิ่ม ownerId
+  ownerId: string;
 }
 
 interface ProfileData {
@@ -27,38 +27,38 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
-  const fetchProfile = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        router.push("/Login");
-        return;
-      }
-      const res = await fetch("/api/profile", {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) throw new Error("Failed to fetch profile");
-      const data = await res.json();
-      setUser(data);
-    } catch (error) {
-      console.error("Error fetching profile:", error);
-      router.push("/Login");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          router.push("/Login");
+          return;
+        }
+        const res = await fetch("/api/profile", {
+          method: "GET",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("Failed to fetch profile");
+        const data = await res.json();
+        setUser(data);
+      } catch (error) {
+        console.error("Error fetching profile:", error);
+        router.push("/Login");
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchProfile();
-  }, []);
+  }, [router]);
 
   if (loading) return <p>Loading...</p>;
   if (!user) return null;
 
   return (
     <div className={styles.profileContainer}>
-      <Sidebar onNewPost={fetchProfile} />
+      <Sidebar onNewPost={() => setLoading(true)} />
 
       <div className={styles.profileHeader}>
         <img
@@ -97,7 +97,7 @@ export default function Profile() {
               className={styles.postCard}
               onClick={() => setSelectedPost(post)}
             >
-              {Array.isArray(post.images) && post.images.length > 0 ? (
+              {post.images?.length ? (
                 <img src={post.images[0]} alt="Post Image" className={styles.postImage} />
               ) : (
                 <p>{post.content}</p>
@@ -112,12 +112,17 @@ export default function Profile() {
       {selectedPost && (
         <CommentModal
           postId={selectedPost.id}
-          ownerId={selectedPost.ownerId}  // ✅ ส่ง ownerId ที่ถูกต้อง
+          ownerId={selectedPost.ownerId}
           postImage={selectedPost.images?.[0] || "/default-post.jpg"}
           postOwner={user.username}
           title={selectedPost.title}
           content={selectedPost.content}
           onClose={() => setSelectedPost(null)}
+          onDelete={async () => {
+            setSelectedPost(null);
+            setLoading(true);
+            await fetchProfile();
+          }}
         />
       )}
     </div>

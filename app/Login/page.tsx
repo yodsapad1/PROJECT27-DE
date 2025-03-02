@@ -38,7 +38,8 @@ export default function LoginPage() {
       localStorage.setItem('token', data.token);
       localStorage.setItem('userId', data.user.id);
       localStorage.setItem('user', JSON.stringify(data.user));
-      router.push('/');
+      localStorage.setItem('role', data.user.role);
+      router.push(data.user.role === 'admin' ? '/Admin/Dashboard' : '/');
     } catch (err: unknown) {
       let errMsg = 'เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ';
       if (err instanceof Error) {
