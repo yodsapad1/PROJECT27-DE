@@ -17,9 +17,13 @@
 }
 
 .profileImage {
-  border-radius: 50%;
-  margin-right: 10px;
+  width: 40px !important;  
+  height: 40px !important;
+  border-radius: 50% !important;
+  object-fit: cover !important;
+  margin-right: 15px;
 }
+
 
 .username {
   font-weight: bold;
@@ -39,11 +43,6 @@
   display: flex;
   justify-content: center;
   margin-top: 10px;
-}
-
-.image {
-  max-width: 100%;
-  border-radius: 5px;
 }
 
 .postActions {

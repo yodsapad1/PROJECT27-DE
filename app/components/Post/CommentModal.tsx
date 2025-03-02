@@ -110,8 +110,8 @@ const CommentModal: React.FC<CommentModalProps> = ({
     }
     setLoggedUserId(userId);
 
-    console.log("🔹 loggedUserId:", userId);
-    console.log("🔹 ownerId:", ownerId);
+      console.log("🔹 loggedUserId:", userId);
+  console.log("🔹 ownerId:", ownerId);
   }, []);
   
 
