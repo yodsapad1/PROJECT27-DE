@@ -39,12 +39,12 @@ export default async function handler(req, res) {
   // Handle POST requests to register a new user
   if (req.method === "POST") {
     console.log("Request Body for POST:", req.body);
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body; // เพิ่มการดึง role
 
-    if (!name || !email || !password) {
+    if (!name || !email || !password || !role) { // ตรวจสอบว่า role ถูกส่งเข้ามาหรือไม่
       return res
         .status(400)
-        .json({ message: "Name, email, and password are required." });
+        .json({ message: "Name, email, password, and role are required." });
     }
 
     try {
@@ -62,12 +62,13 @@ export default async function handler(req, res) {
           name,
           email,
           password: hashedPassword,
+          role // เพิ่ม role เข้าไป
         },
       });
 
       return res.status(201).json({
         message: "User registered successfully!",
-        user: { id: newUser.id, name: newUser.name, email: newUser.email },
+        user: { id: newUser.id, name: newUser.name, email: newUser.email, role: newUser.role }, // ส่งคืน role
       });
     } catch (error) {
       if (error instanceof Error) {
