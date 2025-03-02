@@ -1,68 +1,117 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./Post.module.css";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import EditPostModal from "./EditPostModal";
-import ReportModal from "./ReportModal"; // นำเข้า ReportModal
+import ReportModal from "./ReportModal";
+import CommentModal from "./CommentModal";
+
+interface Comment {
+  id: string;
+  user: string;
+  text: string;
+}
 
 interface PostProps {
   id: string;
+  title: string;
   username: string;
   userImage: string;
-  postImage: string;
+  postImages: string[];
   caption: string;
   likes: number;
-  comments: number;
+  comments: Comment[];
   ownerId: string;
-  currentUserId: string;
+  currentUserId?: string;
   onDelete?: () => void;
 }
 
+const decodeToken = (token: string) => {
+  try {
+    const payload = token.split(".")[1];
+    return JSON.parse(atob(payload));
+  } catch (error) {
+    console.error("Error decoding token:", error);
+    return null;
+  }
+};
+
 const Post: React.FC<PostProps> = ({
   id,
+  title,
   username,
   userImage,
-  postImage,
+  postImages,
   caption,
   likes,
-  comments,
+  comments = [],
   ownerId,
   currentUserId,
   onDelete,
 }) => {
-  const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+  const [loggedUserId, setLoggedUserId] = useState<string | null>(currentUserId || null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const toggleMenu = () => {
-    setMenuOpen((prev) => !prev);
-  };
+  useEffect(() => {
+    let userId = localStorage.getItem("userId");
+    if (!userId) {
+      const token = localStorage.getItem("token");
+      if (token) {
+        const decoded = decodeToken(token);
+        if (decoded && decoded.id) {
+          userId = decoded.id;
+          console.log("Decoded Logged User ID from token:", userId);
+        }
+      }
+    }
+    setLoggedUserId(userId || currentUserId || null);
+    console.log("Logged User ID:", userId || currentUserId || null);
+    console.log("Owner ID:", ownerId);
+  }, [currentUserId, ownerId]);
+
+  const toggleMenu = () => setMenuOpen((prev) => !prev);
+  const openCommentModal = () => setIsCommentModalOpen(true);
+  const closeCommentModal = () => setIsCommentModalOpen(false);
 
   const handleDelete = async () => {
-    const confirmed = confirm("คุณแน่ใจหรือไม่ที่จะลบโพสต์นี้?");
+    const confirmed = confirm("Are you sure you want to delete this post?");
     if (!confirmed) return;
 
+    let token = localStorage.getItem("token");
+    console.log("Token being sent:", token);
+
+    if (!token) {
+      alert("Authentication required.");
+      return;
+    }
+
     try {
-      const response = await fetch(`/api/user_delete_post/${id}`, {
+      const response = await fetch(`/api/deletePost?postId=${id}`, {
         method: "DELETE",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         credentials: "include",
-        body: JSON.stringify({ userId: currentUserId }),
       });
 
       if (response.status === 204) {
-        alert("ลบโพสต์เรียบร้อยแล้ว");
+        alert("Post deleted successfully!");
         if (onDelete) onDelete();
       } else {
-        const data = await response.json();
-        alert(data.message || "เกิดข้อผิดพลาดในการลบโพสต์");
+        const responseData = await response.json();
+        console.log("Delete response:", responseData);
+        alert(responseData.message || "Error deleting post");
       }
     } catch (error) {
       console.error("Error deleting post:", error);
-      alert("เกิดข้อผิดพลาดในการลบโพสต์");
+      alert("Failed to delete post.");
     }
+
     setMenuOpen(false);
   };
 
@@ -76,6 +125,18 @@ const Post: React.FC<PostProps> = ({
     setMenuOpen(false);
   };
 
+  const nextImage = () => {
+    if (currentImageIndex < postImages.length - 1) {
+      setCurrentImageIndex(currentImageIndex + 1);
+    }
+  };
+
+  const prevImage = () => {
+    if (currentImageIndex > 0) {
+      setCurrentImageIndex(currentImageIndex - 1);
+    }
+  };
+
   return (
     <div className={styles.postContainer}>
       <div className={styles.postHeader}>
@@ -86,22 +147,44 @@ const Post: React.FC<PostProps> = ({
           height={40}
           className={styles.profileImage}
         />
-        <span className={styles.username}>{username}</span>
+        <span className={styles.username}>{username || "Default Name"}</span>
         <div className={styles.menuContainer}>
-          <button onClick={toggleMenu} className={styles.menuButton}>
-            ⋮
-          </button>
+          <button onClick={toggleMenu} className={styles.menuButton}>⋮</button>
         </div>
       </div>
+
+
       <div className={styles.postImage}>
-        {postImage ? (
-          <Image
-            src={postImage}
-            alt="Post"
-            width={500}
-            height={500}
-            className={styles.image}
-          />
+        {postImages && postImages.length > 0 ? (
+          <div className={styles.imagePreviewContainer}>
+            <div className={styles.imageWrapper}>
+              {postImages.length > 1 && (
+                <button
+                  onClick={prevImage}
+                  disabled={currentImageIndex === 0}
+                  className={styles.imageNavLeft}
+                >
+                  &#10094;
+                </button>
+              )}
+              <Image
+                src={postImages[currentImageIndex]}
+                alt="Post"
+                width={500}
+                height={500}
+                className={styles.image}
+              />
+              {postImages.length > 1 && (
+                <button
+                  onClick={nextImage}
+                  disabled={currentImageIndex === postImages.length - 1}
+                  className={styles.imageNavRight}
+                >
+                  &#10095;
+                </button>
+              )}
+            </div>
+          </div>
         ) : (
           <Image
             src="/default-post.jpg"
@@ -111,18 +194,28 @@ const Post: React.FC<PostProps> = ({
           />
         )}
       </div>
+
       <div className={styles.postActions}>
         <span>❤️ {likes} Likes</span>
-        <span>💬 {comments} Comments</span>
+        <button onClick={openCommentModal} className={styles.commentButton}>
+          💬 {comments?.length || 0} Comments
+        </button>
       </div>
+
+      <div className={styles.postTitle}>
+        <h2>{title}</h2>
+      </div>
+
+
+
       <div className={styles.postCaption}>
-        <strong>{username}</strong> {caption}
+        <strong>{username || "Default Name"}</strong> {caption}
       </div>
 
       {menuOpen && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
-            {currentUserId === ownerId ? (
+            {loggedUserId === ownerId ? (
               <>
                 <button onClick={handleDelete} className={styles.modalButton}>
                   Delete
@@ -146,8 +239,9 @@ const Post: React.FC<PostProps> = ({
       {isEditModalOpen && (
         <EditPostModal
           postId={id}
+          initialTitle={title}
           initialCaption={caption}
-          initialImage={postImage}
+          initialImages={postImages} // ส่ง array ของรูปทั้งหมด
           closeModal={() => setIsEditModalOpen(false)}
           onPostUpdated={onDelete ? onDelete : () => {}}
         />
@@ -156,13 +250,25 @@ const Post: React.FC<PostProps> = ({
       {isReportModalOpen && (
         <ReportModal
           postId={id}
-          currentUserId={currentUserId}
+          currentUserId={loggedUserId || ""}
           closeModal={() => setIsReportModalOpen(false)}
-          onReportSubmitted={() => {
-            // อาจรีเฟรชโพสต์หรือแสดงข้อความอื่นๆ
-          }}
+          onReportSubmitted={() => {}}
         />
       )}
+
+      {isCommentModalOpen && (
+        <CommentModal
+          postId={id}  
+          ownerId={ownerId}  
+          postImage={postImages[0]}  
+          postOwner={username || "Default Name"}  
+          title={title}  // ✅ เพิ่ม title
+          content={caption}  // ✅ เพิ่ม content (ใช้ caption ที่ส่งไป)
+          likes={likes}
+          onClose={closeCommentModal}
+        />
+      )}
+
     </div>
   );
 };

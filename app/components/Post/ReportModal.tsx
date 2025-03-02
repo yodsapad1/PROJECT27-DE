@@ -37,13 +37,14 @@ const ReportModal: React.FC<ReportModalProps> = ({
     }
 
     const formData = new FormData();
-    formData.append("reason", selectedReason);
-    formData.append("userId", currentUserId);
+    // ใช้ set() แทน append() เพื่อให้แน่ใจว่า key จะมีค่าเดียว (string)
+    formData.set("reason", selectedReason);
+    formData.set("userId", currentUserId);
 
     try {
       const response = await fetch(`/api/user_report/${postId}`, {
         method: "POST",
-        credentials: "include", // ส่งคุกกี้ session ไปด้วย
+        credentials: "include", // ส่งคุกกี้ session ไปด้วย (ถ้ามี)
         body: formData,
       });
       if (response.ok) {
