@@ -1,0 +1,280 @@
+/* ✅ ปรับโครงสร้างพื้นหลังของ Modal */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+/* ✅ ปรับขนาดของ Modal */
+.modalContent {
+  background: #fff;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 1100px;
+  height: 700px;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ✅ ปุ่มปิด Modal */
+.closeButton {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.7);
+  color: rgb(0, 0, 0);
+  border: none;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+  transition: background 0.2s ease-in-out, transform 0.1s ease-in-out;
+}
+
+.closeButton:hover {
+  background: rgb(255, 255, 255);
+  transform: scale(1.1);
+}
+
+/* ✅ โครงสร้างของ Modal */
+.postContainer {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+
+.imageSection {
+  flex: 1;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.imageSection img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.commentSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 15px;
+  overflow: hidden;
+}
+
+/* ✅ ปรับหัวโพสต์ให้เป็นแนวนอน */
+.postHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* ทำให้ชื่ออยู่ซ้าย และ 3 จุดอยู่ขวา */
+  width: 100%;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.ownerProfile {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+/* ✅ ปรับปุ่ม 3 จุด (⋮) */
+.menuButton {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ✅ เมนูของ 3 จุด */
+.modalMenu {
+  position: absolute;
+  top: 40px;
+  right: 10px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  z-index: 2000;
+}
+
+.modalButton {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  font-size: 16px;
+  cursor: pointer;
+  border: none;
+  background-color: #f7f7f7;
+  border-radius: 5px;
+}
+
+.modalButton:hover {
+  background-color: #e0e0e0;
+}
+
+/* ✅ ปรับโครงสร้างคอมเมนต์ */
+.commentList {
+  flex-grow: 1;
+  overflow-y: auto;
+  max-height: 600px;
+  padding: 5px;
+}
+
+.commentItem {
+  position: relative;
+  padding: 5px 0;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 5px;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: normal;
+}
+
+/* ✅ ส่วนป้อนคอมเมนต์ */
+.commentInput {
+  display: flex;
+  align-items: center;
+  margin-top: auto;
+  gap: 5px;
+}
+
+.textInput {
+  flex-grow: 1;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.plusButton {
+  width: 40px;
+  height: 40px;
+  background-color: #eee;
+  border: none;
+  border-radius: 50%;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.postButton {
+  padding: 8px 12px;
+  background-color: #0095f6;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.postDetails {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.postMeta {
+  font-size: 14px;
+  font-weight: normal;
+  color: #333;
+  display: flex;
+  align-items: center;
+  gap: 5px; /* เพิ่มช่องว่างเล็กน้อยระหว่างชื่อและข้อความ */
+}
+
+.modalMenuOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5); /* ✅ เพิ่มเงาดำเข้มขึ้น */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* ✅ อยู่ด้านบน */
+}
+
+.modalMenu {
+  position: fixed;
+  top: 50%; /* ✅ จัดให้อยู่ตรงกลางแนวตั้ง */
+  left: 50%; /* ✅ จัดให้อยู่ตรงกลางแนวนอน */
+  transform: translate(-50%, -50%); /* ✅ ปรับตำแหน่งให้พอดี */
+  background: #fff; /* ✅ พื้นหลังสีขาว */
+  padding: 20px;
+  border-radius: 10px; /* ✅ มุมโค้ง */
+  text-align: center;
+  width: 600px; /* ✅ กำหนดขนาดเมนูให้แน่นอน */
+  max-width: 100%; /* ✅ ป้องกันการใหญ่เกินขนาดหน้าจอ */
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3); /* ✅ เพิ่มเงาให้ลอยขึ้น */
+  z-index: 1100; /* ✅ ให้อยู่บนสุด */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.commentMenuOverlay {
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  width: 100%;
+  height: 100%;
+  z-index: 2000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0,0,0,0.3);
+}
+
+.commentMenuContent {
+  background: #fff;
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 550px;
+}
+.commentMenuContent button {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: center;
+  padding: 8px;
+  border-radius: 5px;
+
+}
+
+.commentMenuContent button:hover {
+  background-color: #f0f0f0;
+}
+
+
+

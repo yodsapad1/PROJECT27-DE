@@ -3,7 +3,8 @@ import dotenv from 'dotenv'
 
 dotenv.config();
 
-const SECRET_KEY = process.env.SECRET_KEY ;
+const SECRET_KEY = process.env.JWT_SECRET || 'RnNVoF4XRf3UwSA8WByFOrzU7DOqVI85Htt5R7J/U4s='; // Set a secret key for JWT
+
 
 export const authMiddleware = (req, res, next) => {
     const token = req.headers['authorization']?.split(' ')[1];
@@ -17,8 +18,10 @@ export const authMiddleware = (req, res, next) => {
             console.error('Token verification failed:', err.message);
             return res.status(403).json({ message: 'Forbidden' });
         }
+
         req.user = user;
         next();
+
     });
 };
 
