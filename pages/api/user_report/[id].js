@@ -32,7 +32,7 @@ export default async function handler(req, res) {
     console.log("Received fields:", fields);
     let { reason, userId } = fields;
 
-    // Minimal change: extract first element if fields are arrays
+    // Extract first element if fields are arrays
     if (Array.isArray(reason)) reason = reason[0];
     if (Array.isArray(userId)) userId = userId[0];
 
@@ -96,6 +96,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ message: 'Error fetching reports.', detail: errorMessage });
     }
   } else {
+    // Handle unsupported methods
     res.setHeader('Allow', ['POST', 'GET']);
     return res.status(405).end(`Method ${req.method} Not Allowed`);
   }
