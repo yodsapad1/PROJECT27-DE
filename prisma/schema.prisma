@@ -12,7 +12,8 @@ model User {
   name     String
   email    String     @unique
   password String?    // Password can be optional or null
-  bio          String?
+  bio      String?
+  role     String     @default("user") // กำหนด role ให้กับผู้ใช้
   profileImage String? // ฟิลด์สำหรับ URL ของภาพโปรไฟล์
   posts    Post[]     @relation("UserPosts") // One User can have many Posts
   comments Comment[]  @relation("UserComments") // One User can have many Comments
