@@ -91,6 +91,11 @@ export default function LoginPage() {
             </button>
           </form>
           {error && <p style={{ color: 'red' }}>{error}</p>}
+          
+          <div className={styles.forgotPassword}>
+            <Link href="/ForgetPassword">Forgot password?</Link>
+          </div>
+          
           <div className={styles.signupLink}>
             <p>
               Don't have an account? <Link href="/SignUp">Sign Up</Link>
