@@ -40,7 +40,7 @@ export default async function handler(req, res) {
         }
 
         // Create JWT token
-        const token = jwt.sign({ id: user.id, email: user.email }, SECRET_KEY, { expiresIn: '12h' });
+        const token = jwt.sign({ id: user.id, role: user.role }, SECRET_KEY, { expiresIn: '12h' });
 
         // Determine role based on email
         const isAdmin = email.includes('admin');
