@@ -38,23 +38,24 @@ const PostReportList = () => {
             "Content-Type": "application/json"
           }
         });
-
+  
         if (!response.ok) {
           throw new Error("Failed to fetch reports");
         }
-
+  
         const data = await response.json();
         setReports(data);
-      } catch (err) {
-        setError("Failed to load reports");
+      } catch (error) {  // ✅ เปลี่ยนจาก `err` เป็น `error`
+        console.error("❌ Error fetching reports:", error);
+        setError("Failed to load reports"); 
       } finally {
         setLoading(false);
       }
     };
-
+  
     fetchReports();
   }, []);
-
+  
   const fetchPostDetails = async (postId: string) => {
     try {
       const response = await fetch(`/api/posts/${postId}`);
@@ -79,9 +80,37 @@ const PostReportList = () => {
     setIsModalOpen(false);
   };
 
-  const handleDelete = async (id: string) => {
-    setReports(prevReports => prevReports.filter(report => report.id !== id));
-  };
+  const handleDeletePost = async (postId: string) => {
+    const confirmDelete = confirm("Are you sure you want to delete this post?");
+    if (!confirmDelete) return;
+
+    try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(`/api/delete_repost?postId=${postId}`, {
+            method: "DELETE",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Failed to delete post");
+        }
+
+        const result = await response.json();
+        console.log("✅ Post deleted:", result);
+
+        // ✅ อัปเดตรายการ reports
+        setReports((prevReports) => prevReports.filter((report) => report.postId !== postId));
+        alert("Post deleted successfully!");
+    } catch (error) {
+        console.error("❌ Error deleting post:", error);
+        alert("Failed to delete post.");
+    }
+};
+
 
   if (loading) return <p>Loading reports...</p>;
   if (error) return <p className={styles.error}>{error}</p>;
@@ -105,10 +134,10 @@ const PostReportList = () => {
                 Detail
               </button>
               <button 
-                className={`${styles.button} ${styles.delete}`} 
-                onClick={() => handleDelete(report.id)}
+                  className={`${styles.button} ${styles.delete}`} 
+                  onClick={() => handleDeletePost(report.postId)}
               >
-                Delete post
+                  Delete post
               </button>
             </div>
           </li>
