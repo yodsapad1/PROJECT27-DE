@@ -8,6 +8,7 @@ import EditPostModal from "./EditPostModal";
 interface Comment {
   id: string;
   userId: string;
+  username: string;
   content: string;
   images?: string[];
 }
@@ -424,7 +425,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
                   comments.map((comment) => (
                     <div key={comment.id} className={styles.commentItem}>
                       <div className={styles.commentContent}>
-                        <strong>User {comment.userId}</strong>: {comment.content}
+                        <strong>{comment.username}</strong>: {comment.content}
                       </div>
                       {comment.images &&
                         comment.images.length > 0 &&

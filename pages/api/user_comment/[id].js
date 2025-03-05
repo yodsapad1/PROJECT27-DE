@@ -90,54 +90,65 @@ export default async function handler(req, res) {
   } else if (req.method === 'GET') {
     // Handle GET request to retrieve comments by postId
     try {
-      const comments = await prisma.comment.findMany({
-        where: { postId: id },
-      });
+        const comments = await prisma.comment.findMany({
+            where: { postId: id },
+            include: {
+                user: { select: { name: true } } // ✅ ดึงชื่อผู้ใช้แทน userId
+            }
+        });
 
-      if (comments.length > 0) {
-        console.log('Retrieved comments:', comments);
-        return res.status(200).json(comments);
-      } else {
-        console.log('No comments found for post ID:', id);
-        return res.status(404).json({ message: 'Comments not found' });
-      }
+        if (comments.length > 0) {
+            // ✅ แปลงข้อมูลให้แสดง name แทน userId
+            const formattedComments = comments.map(comment => ({
+                ...comment,
+                username: comment.user.name, // ใช้ name เป็น username
+            }));
+
+            console.log('Retrieved comments:', formattedComments);
+            return res.status(200).json(formattedComments);
+        } else {
+            console.log('No comments found for post ID:', id);
+            return res.status(404).json({ message: 'Comments not found' });
+        }
     } catch (error) {
-      console.error('Error retrieving comments:', error);
-      return res.status(500).json({ message: 'Error retrieving comments.' });
+        console.error('Error retrieving comments:', error);
+        return res.status(500).json({ message: 'Error retrieving comments.' });
     }
   } else if (req.method === 'DELETE') {
     // Handle DELETE request for deleting a comment
     try {
-      const { userId } = req.query; // ดึง userId จาก query string
+        const { userId } = req.query; // ดึง userId จาก query string
 
-      // ค้นหาคอมเมนต์ที่ต้องการลบ
-      const comment = await prisma.comment.findUnique({
-        where: { id: id },
-      });
+        // ค้นหาคอมเมนต์ที่ต้องการลบ
+        const comment = await prisma.comment.findUnique({
+            where: { id: id },
+            include: { replies: true } // ตรวจสอบว่ามี replies หรือไม่
+        });
 
-      if (!comment) {
-        return res.status(404).json({ message: 'Comment not found' , comment , id});
-      }
+        if (!comment) {
+            return res.status(404).json({ message: 'Comment not found' });
+        }
 
-      // ตรวจสอบว่า userId ที่ส่งมาคือเจ้าของคอมเมนต์หรือไม่
-      if (comment.userId !== userId) {
-        return res.status(403).json({ message: 'You do not have permission to delete this comment.' });
-      }
+        // ตรวจสอบว่า userId ที่ส่งมาคือเจ้าของคอมเมนต์หรือไม่
+        if (comment.userId !== userId) {
+            return res.status(403).json({ message: 'You do not have permission to delete this comment.' });
+        }
 
-      // ทำการลบคอมเมนต์
-      await prisma.comment.delete({
-        where: { id: id },
-      });
+        // **1. ลบ Reply ทั้งหมดที่เชื่อมโยงกับ Comment นี้**
+        await prisma.reply.deleteMany({
+            where: { originalCommentId: id }
+        });
 
-      console.log('Deleted comment:', id);
-      return res.status(200).json({ message: 'Comment deleted successfully' });
+        // **2. ลบคอมเมนต์**
+        await prisma.comment.delete({
+            where: { id: id },
+        });
+
+        console.log('Deleted comment:', id);
+        return res.status(200).json({ message: 'Comment deleted successfully' });
     } catch (error) {
-      if (error) {
         console.error('Error deleting comment:', error);
-      } else {
-        console.error('Error deleting comment: Unknown error');
-      }
-      return res.status(500).json({ message: 'Error deleting comment.' });
+        return res.status(500).json({ message: 'Error deleting comment.', detail: error.message });
     }
   } else {
     // กำหนดวิธีที่อนุญาต
