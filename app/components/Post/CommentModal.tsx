@@ -31,7 +31,6 @@ interface CommentModalProps {
   title: string;  // ✅ เพิ่ม title
   content: string; // ✅ เพิ่ม content
   onClose: () => void;
-  likes?: number;
   onDelete?: () => Promise<void>;
 }
 
@@ -439,16 +438,18 @@ const CommentModal: React.FC<CommentModalProps> = ({
                         !comment.images[0].toLowerCase().includes("dummy") && (
                           <div
                             className={styles.commentImage}
-                            onClick={() => comment.images?.length ? setPreviewImage(comment.images[0]) : null}
+                            onClick={() => comment.images?.[0] && setPreviewImage(comment.images[0])} // ใช้ Optional Chaining
                             style={{ cursor: "pointer" }}
                           >
-                            <Image
-                              src={comment.images[0]}
-                              alt="Comment Image"
-                              width={200}
-                              height={200}
-                              style={{ objectFit: "cover" }}
-                            />
+                            {comment.images?.length > 0 && (
+                              <Image
+                                src={comment.images[0]}
+                                alt="Comment Image"
+                                width={200}
+                                height={200}
+                                style={{ objectFit: "cover" }}
+                              />
+                            )}
                           </div>
                         )}
                       {/* ส่วน Reply + 3 จุด */}
@@ -499,31 +500,37 @@ const CommentModal: React.FC<CommentModalProps> = ({
                       {/* แสดงรายการ replies เมื่อเปิด */}
                       {expandedReplies[comment.id] && repliesMap[comment.id] && (
                         <div className={styles.replyList}>
-                          {repliesMap[comment.id].map((reply) => (
-                            <div key={reply.id} className={styles.replyItem}>
-                              <strong>User {reply.userId}</strong>: {reply.content}
-                              {reply.images &&
-                                reply.images.length > 0 &&
-                                !reply.images[0].toLowerCase().includes("dummy") && (
-                                  <div
-                                    className={styles.replyImage}
-                                    onClick={() => comment.images?.length ? setPreviewImage(comment.images[0]) : null}
-                                    style={{ cursor: "pointer" }}
-                                  >
-                                    <Image
-                                      src={reply.images[0]}
-                                      alt="Reply Image"
-                                      width={150}
-                                      height={150}
-                                      style={{ objectFit: "cover" }}
-                                    />
+                          {repliesMap[comment.id] && repliesMap[comment.id].length > 0 && (
+                            <div className={styles.replyList}>
+                              {repliesMap[comment.id].map((reply) => (
+                                <div key={reply.id} className={styles.replyItem}>
+                                  <strong>{reply.userId}</strong>: {reply.content}
+                                  {reply.images && reply.images.length > 0 && !reply.images[0].toLowerCase().includes("dummy") && (
+                                    <div
+                                      className={styles.replyImage}
+                                      onClick={() => {
+                                        if (reply.images && reply.images.length > 0) {
+                                          setPreviewImage(reply.images[0]);
+                                        }
+                                      }}
+                                      style={{ cursor: "pointer" }}
+                                    >
+                                      <Image
+                                        src={reply.images[0]}
+                                        alt="Reply Image"
+                                        width={150}
+                                        height={150}
+                                        style={{ objectFit: "cover" }}
+                                      />
+                                    </div>
+                                  )}
+                                  <div className={styles.replyLabel}>
+                                    Replies ⋯
                                   </div>
-                              )}
-                              <div className={styles.replyLabel}>
-                                Replies ⋯
-                              </div>
+                                </div>
+                              ))}
                             </div>
-                          ))}
+                          )}
                         </div>
                       )}
                     </div>

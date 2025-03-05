@@ -80,11 +80,13 @@ export default function EditProfile() {
     <div className={styles.container}>
       <h2 className={styles.title}>Edit Profile</h2>
       <div className={styles.profilePicContainer}>
-        <Image
-          src={previewImage || "/uploads/default-avatar.jpg"}
-          alt="Profile"
-          className={styles.profilePic}
-        />
+      <Image
+        src={previewImage || "/uploads/default-avatar.jpg"}
+        alt="Profile"
+        width={100} // กำหนดความกว้าง
+        height={100} // กำหนดความสูง
+        className={styles.profilePic}
+      />
       </div>
       <p className={styles.usernameText}>{username}</p>
 

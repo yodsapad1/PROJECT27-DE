@@ -280,7 +280,6 @@ const Post: React.FC<PostProps> = ({
           ownerImage={userImage}
           title={title}  // ✅ เพิ่ม title
           content={caption}  // ✅ เพิ่ม content (ใช้ caption ที่ส่งไป)
-          likes={likes}
           onClose={closeCommentModal}
         />
       )}

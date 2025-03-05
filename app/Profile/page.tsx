@@ -65,6 +65,8 @@ export default function Profile() {
         <Image
           src={user.profileImage || "/assets/default-avatar.jpg"}
           alt="User Avatar"
+          width={50} // ระบุ width
+          height={50} // ระบุ height
           className={styles.avatarImage}
         />
         <div className={styles.userInfo}>
@@ -99,7 +101,13 @@ export default function Profile() {
               onClick={() => setSelectedPost(post)}
             >
               {post.images?.length ? (
-                <Image src={post.images[0]} alt="Post Image" className={styles.postImage} />
+                <Image
+                src={post.images[0]}
+                alt="Post Image"
+                width={500}
+                height={300}
+                className={styles.postImage}
+              />
               ) : (
                 <p>{post.content}</p>
               )}

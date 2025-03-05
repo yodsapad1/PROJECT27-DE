@@ -69,7 +69,12 @@ export default function SignUpPage() {
   return (
     <div className={styles.signupContainer}>
       <div className={styles.leftSide}>
-        <Image src="/assets/11.jpg" alt="Sign Up" />
+                <Image
+                  src="/assets/11.jpg"
+                  alt="Login"
+                  width={700} // ความกว้างที่คุณต้องการ
+                  height={700} // ความสูงที่คุณต้องการ
+                />
       </div>
       <div className={styles.rightSide}>
         <div className={styles.formWrapper}>

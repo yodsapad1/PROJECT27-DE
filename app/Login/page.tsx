@@ -58,7 +58,12 @@ export default function LoginPage() {
   return (
     <div className={styles.loginContainer}>
       <div className={styles.leftSide}>
-        <Image src="/assets/11.jpg" alt="Login" />
+        <Image
+          src="/assets/11.jpg"
+          alt="Login"
+          width={700} // ความกว้างที่คุณต้องการ
+          height={700} // ความสูงที่คุณต้องการ
+        />
       </div>
       <div className={styles.rightSide}>
         <div className={styles.formWrapper}>
