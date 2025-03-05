@@ -26,9 +26,11 @@ export const authMiddleware = (req, res, next) => {
 };
 
 export const adminMiddleware = (req, res, next) => {
-    console.log(req.user.role); // เพิ่มบรรทัดนี้เพื่อตรวจสอบค่า role ของผู้ใช้
-    if (req.user.role !== 'admin') {
-        return res.status(403).json({ message: 'Access denied. Admins only.' });
+    const rur = req.user.role
+    // ตรวจสอบว่า req.user มีค่าอยู่หรือไม่และมี role ถูกต้อง
+    if (!req.user || req.user.role !== 'admin') {
+        return res.status(403).json({ message: 'Access denied. Admins only.' + rur });
     }
+    // ใช้งานต่อไปหากผู้ใช้มีบทบาท admin
     next();
 };
