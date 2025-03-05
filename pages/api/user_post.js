@@ -70,7 +70,7 @@ export default async function handler(req, res) {
           },
         });
 
-        return res.status(201).json('post succesfully');
+        return res.status(201).json({ message: "Post successfully created.", post: newPost });
       } catch (error) {
         console.error('Error creating post:', error);
         return res.status(500).json({ message: 'Failed to create post.', detail: error.message });

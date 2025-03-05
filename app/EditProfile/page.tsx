@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./EditProfile.module.css";
+import Image from "next/image";
 
 export default function EditProfile() {
   const router = useRouter();
@@ -36,7 +37,7 @@ export default function EditProfile() {
     };
 
     fetchProfile();
-  }, []);
+  }, [router]);
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -67,9 +68,11 @@ export default function EditProfile() {
       alert("Profile updated successfully!");
       router.push("/Profile");
     } catch (error) {
-      console.error("❌ Error updating profile:", error);
-      alert(error.message);
+      const errMessage = error instanceof Error ? error.message : "An unknown error occurred";
+      console.error("❌ Error updating profile:", errMessage);
+      alert(errMessage);
     }
+    
   };
   
 
@@ -77,7 +80,7 @@ export default function EditProfile() {
     <div className={styles.container}>
       <h2 className={styles.title}>Edit Profile</h2>
       <div className={styles.profilePicContainer}>
-        <img
+        <Image
           src={previewImage || "/uploads/default-avatar.jpg"}
           alt="Profile"
           className={styles.profilePic}

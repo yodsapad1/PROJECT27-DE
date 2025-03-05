@@ -1,8 +1,16 @@
 "use client";
 import React, { useState, useEffect, FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import styles from "./EditPostModal.module.css";
+
+interface EditPostModalProps {
+  postId: string;
+  initialTitle: string;
+  initialCaption: string;
+  initialImages: string[];
+  closeModal: () => void;
+  onPostUpdated: () => void;
+}
 
 const EditPostModal: React.FC<EditPostModalProps> = ({
   postId,
@@ -12,14 +20,15 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
   closeModal,
   onPostUpdated,
 }) => {
-  const router = useRouter();
   const [title, setTitle] = useState(initialTitle);
   const [caption, setCaption] = useState(initialCaption);
   const [selectedImages, setSelectedImages] = useState<string[]>(initialImages || []);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false); // ✅ เพิ่ม state loading
+  const [loading, setLoading] = useState(false);
+  void setLoading; // ทำให้ ESLint ไม่แจ้งเตือน
+
 
   useEffect(() => {
     setTitle(initialTitle);
@@ -61,20 +70,25 @@ const EditPostModal: React.FC<EditPostModalProps> = ({
         credentials: "include",
         body: formData,
       });
-  
+    
       if (!response.ok) {
         const data = await response.json();
         throw new Error(data.message || "Failed to update post");
       }
-  
+    
       alert("Post updated successfully!");
-      onPostUpdated(); // ✅ อัปเดตรายการโพสต์
+      onPostUpdated();
       closeModal();
-      window.location.reload(); // ✅ รีโหลดหน้าหลักหลังแก้ไขสำเร็จ
-    } catch (err: any) {
+      window.location.reload();
+    } catch (err: unknown) { // ✅ เปลี่ยนเป็น unknown
       console.error("Error updating post:", err);
-      setError(err.message || "An error occurred. Please try again.");
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("An error occurred. Please try again.");
+      }
     }
+    
   };
   
 

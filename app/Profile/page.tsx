@@ -1,10 +1,11 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./Profile.module.css";
 import Sidebar from "../components/Sidebar/Sidebar";
 import { FaCog } from "react-icons/fa";
 import CommentModal from "../components/Post/CommentModal";
+import Image from "next/image";
 
 interface Post {
   id: string;
@@ -27,31 +28,31 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          router.push("/Login");
-          return;
-        }
-        const res = await fetch("/api/profile", {
-          method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error("Failed to fetch profile");
-        const data = await res.json();
-        setUser(data);
-      } catch (error) {
-        console.error("Error fetching profile:", error);
+  const fetchProfile = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
         router.push("/Login");
-      } finally {
-        setLoading(false);
+        return;
       }
-    };
-
-    fetchProfile();
+      const res = await fetch("/api/profile", {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error("Failed to fetch profile");
+      const data = await res.json();
+      setUser(data);
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      router.push("/Login");
+    } finally {
+      setLoading(false);
+    }
   }, [router]);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   if (loading) return <p>Loading...</p>;
   if (!user) return null;
@@ -61,7 +62,7 @@ export default function Profile() {
       <Sidebar onNewPost={() => setLoading(true)} />
 
       <div className={styles.profileHeader}>
-        <img
+        <Image
           src={user.profileImage || "/assets/default-avatar.jpg"}
           alt="User Avatar"
           className={styles.avatarImage}
@@ -98,7 +99,7 @@ export default function Profile() {
               onClick={() => setSelectedPost(post)}
             >
               {post.images?.length ? (
-                <img src={post.images[0]} alt="Post Image" className={styles.postImage} />
+                <Image src={post.images[0]} alt="Post Image" className={styles.postImage} />
               ) : (
                 <p>{post.content}</p>
               )}
@@ -115,6 +116,7 @@ export default function Profile() {
           ownerId={selectedPost.ownerId}
           postImage={selectedPost.images?.[0] || "/default-post.jpg"}
           postOwner={user.username}
+          ownerImage={user.profileImage || "/assets/default-avatar.jpg"} // ✅ เพิ่ม ownerImage
           title={selectedPost.title}
           content={selectedPost.content}
           onClose={() => setSelectedPost(null)}

@@ -1,18 +1,15 @@
-// app/edit-password/page.tsx
-
 "use client";
+import { useState, Suspense } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import styles from "./reset-password.module.css";
 
-import { useState } from "react";
-import styles from "./EditPassword.module.css";
-import { useRouter, useSearchParams } from "next/navigation";
-
-const EditPassword = () => {
+const ResetPasswordForm = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const searchParams = useSearchParams();
+  const searchParams = useSearchParams(); // ✅ ใช้ใน Suspense
   const router = useRouter();
-  const token = searchParams.get("token");
+  const token = searchParams?.get("token") ?? "";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,6 +35,7 @@ const EditPassword = () => {
         router.push("/Login");
       }
     } catch (error) {
+      console.error("❌ Error updating password:", error);
       alert("Failed to update password. Please try again.");
     }
     setLoading(false);
@@ -49,7 +47,7 @@ const EditPassword = () => {
         <h2 className={styles.title}>Create A Strong Password</h2>
         <p className={styles.subtitle}>
           Your password must be at least 6 characters and should include a
-          combination of numbers, letters and special characters (!$@%).
+          combination of numbers, letters, and special characters (!$@%).
         </p>
         <form onSubmit={handleSubmit}>
           <input
@@ -77,4 +75,11 @@ const EditPassword = () => {
   );
 };
 
-export default EditPassword;
+// ✅ ครอบด้วย <Suspense> ใน component หลัก
+export default function EditPassword() {
+  return (
+    <Suspense fallback={<p>Loading...</p>}>
+      <ResetPasswordForm />
+    </Suspense>
+  );
+}

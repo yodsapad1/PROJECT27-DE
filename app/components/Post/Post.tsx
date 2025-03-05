@@ -8,9 +8,14 @@ import CommentModal from "./CommentModal";
 
 interface Comment {
   id: string;
-  user: string;
-  text: string;
+  text: string; // ✅ ต้องมี field นี้
+  user: {
+    id: string;
+    name: string;
+    image: string;
+  };
 }
+
 
 interface PostProps {
   id: string;
@@ -56,6 +61,10 @@ const Post: React.FC<PostProps> = ({
   const [loggedUserId, setLoggedUserId] = useState<string | null>(currentUserId || null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
+  void isLoading; // ทำให้ ESLint ไม่แจ้งเตือน
+
+
+
 
 
   useEffect(() => {
@@ -83,7 +92,7 @@ const Post: React.FC<PostProps> = ({
     const confirmed = confirm("Are you sure you want to delete this post?");
     if (!confirmed) return;
 
-    let token = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
     console.log("Token being sent:", token);
 
     if (!token) {

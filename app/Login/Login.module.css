@@ -87,10 +87,22 @@
   outline: none;
 }
 
-input::placeholder {
-  color: #666; /* สี placeholder */
-  font-size: 0.9rem;
+.customInput {
+  width: 100%;
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
 }
+
+/* ✅ ต้องเชื่อมกับ `.customInput` */
+.customInput::placeholder {
+  color: #666;
+  font-size: 0.9rem;
+  opacity: 1; /* ✅ Safari ต้องใช้ opacity เพื่อให้แสดงผล */
+}
+
+
 
 /* ปุ่ม */
 .loginButton {

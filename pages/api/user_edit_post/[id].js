@@ -18,6 +18,10 @@ export default async function handler(req, res) {
 
   if (req.method === "PUT") {
     const session = await getServerSession(req, res, authMiddleware);
+    if (!session || !session.user) {
+      return res.status(401).json({ message: "Unauthorized: Please log in." });
+    }
+
 
     const form = new IncomingForm();
     form.parse(req, async (err, fields, files) => {

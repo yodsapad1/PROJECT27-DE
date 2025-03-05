@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import styles from './Login.module.css';
+import Image from "next/image";
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -57,7 +58,7 @@ export default function LoginPage() {
   return (
     <div className={styles.loginContainer}>
       <div className={styles.leftSide}>
-        <img src="/assets/11.jpg" alt="Login" />
+        <Image src="/assets/11.jpg" alt="Login" />
       </div>
       <div className={styles.rightSide}>
         <div className={styles.formWrapper}>
@@ -99,7 +100,7 @@ export default function LoginPage() {
           
           <div className={styles.signupLink}>
             <p>
-              Don't have an account? <Link href="/SignUp">Sign Up</Link>
+              Don&apos;t have an account? <Link href="/SignUp">Sign Up</Link>
             </p>
           </div>
         </div>

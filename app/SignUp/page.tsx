@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from "next/link";
 import styles from './SignUp.module.css';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import Image from "next/image";
 
 export default function SignUpPage() {
   const [email, setEmail] = useState('');
@@ -68,7 +69,7 @@ export default function SignUpPage() {
   return (
     <div className={styles.signupContainer}>
       <div className={styles.leftSide}>
-        <img src="/assets/11.jpg" alt="Sign Up" />
+        <Image src="/assets/11.jpg" alt="Sign Up" />
       </div>
       <div className={styles.rightSide}>
         <div className={styles.formWrapper}>

@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import multer from "multer";
 import fs from "fs";
-import path from "path";
+
 import { authMiddleware } from "./auth";
 
 const prisma = new PrismaClient();

@@ -149,6 +149,7 @@ const PostReportList = () => {
           ownerId={selectedPost.ownerId}
           postImage={selectedPost.images?.[0] || "/default-post.jpg"}
           postOwner={selectedPost.ownerId}
+          ownerImage={selectedPost.images?.[0] || "/assets/default-avatar.jpg"}
           title={selectedPost.title}
           content={selectedPost.content}
           onClose={closeModal}

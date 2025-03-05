@@ -3,6 +3,7 @@ import React, { useState, useEffect, useRef } from "react";
 import styles from "./CommentModal.module.css";
 import Image from "next/image";
 import EditPostModal from "./EditPostModal";
+import { jwtDecode } from "jwt-decode";
 
 
 interface Comment {
@@ -26,9 +27,12 @@ interface CommentModalProps {
   ownerId: string;
   postImage: string;
   postOwner: string;
+  ownerImage: string; // ✅ เพิ่ม field นี้
   title: string;  // ✅ เพิ่ม title
   content: string; // ✅ เพิ่ม content
   onClose: () => void;
+  likes?: number;
+  onDelete?: () => Promise<void>;
 }
 
 const CommentModal: React.FC<CommentModalProps> = ({
@@ -51,12 +55,10 @@ const CommentModal: React.FC<CommentModalProps> = ({
   // repliesMap เก็บรายการ reply ของแต่ละคอมเมนต์ (key = comment id)
   const [repliesMap, setRepliesMap] = useState<{ [key: string]: Reply[] }>({});
   const [expandedReplies, setExpandedReplies] = useState<{ [key: string]: boolean }>({});
-  const [editingComment, setEditingComment] = useState<Comment | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [loggedUserId, setLoggedUserId] = useState<string | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-    const [isLoading, setIsLoading] = useState(false);
   
 
 
@@ -92,6 +94,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
       try {
         console.log(`Fetching comments for postId: ${postId}`);
         const response = await fetch(`/api/user_comment/${postId}`);
+  
         if (!response.ok) {
           if (response.status === 404) {
             console.warn("No comments found.");
@@ -105,19 +108,26 @@ const CommentModal: React.FC<CommentModalProps> = ({
           console.log("Comments loaded:", data);
           setComments(data);
   
-          // ✅ โหลด replies สำหรับทุก comment ที่มี
-          const repliesData = {};
+          // ✅ โหลด replies สำหรับทุก comment ที่มี พร้อมกำหนด Type ที่ชัดเจน
+          const repliesData: { [key: string]: Reply[] } = {};
+  
           await Promise.all(
-            data.map(async (comment) => {
-              const res = await fetch(`/api/replies/${comment.id}`);
-              if (res.ok) {
-                const replyList = await res.json();
-                repliesData[comment.id] = replyList;
-              } else {
-                repliesData[comment.id] = [];
+            data.map(async (comment: { id: string }) => {
+              try {
+                const res = await fetch(`/api/replies/${comment.id}`);
+                if (res.ok) {
+                  const replyList = await res.json();
+                  repliesData[comment.id] = replyList;
+                } else {
+                  repliesData[comment.id] = [];
+                }
+              } catch (err) {
+                console.error(`Failed to fetch replies for comment ${comment.id}:`, err);
+                repliesData[comment.id] = []; // ✅ ป้องกัน Error โดยให้เป็น array ว่าง
               }
             })
           );
+  
           setRepliesMap(repliesData);
         }
       } catch (error) {
@@ -127,6 +137,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
   
     fetchCommentsAndReplies();
   }, [postId]); // ✅ โหลดข้อมูลใหม่เมื่อ postId เปลี่ยน
+  
   
 
   useEffect(() => {
@@ -144,20 +155,25 @@ const CommentModal: React.FC<CommentModalProps> = ({
 
   useEffect(() => {
     let userId = localStorage.getItem("userId");
+  
     if (!userId) {
       const token = localStorage.getItem("token");
       if (token) {
-        const decoded = decodeToken(token);
-        if (decoded && decoded.id) {
-          userId = decoded.id;
+        try {
+          const decoded: { id: string } = jwtDecode(token); // ✅ ใช้ `jwtDecode` แทน `jwt_decode`
+          if (decoded && decoded.id) {
+            userId = decoded.id;
+          }
+        } catch (error) {
+          console.error("Invalid Token:", error);
         }
       }
     }
+  
     setLoggedUserId(userId);
-
-      console.log("🔹 loggedUserId:", userId);
-  console.log("🔹 ownerId:", ownerId);
-  }, []);
+    console.log("🔹 loggedUserId:", userId);
+    console.log("🔹 ownerId:", ownerId);
+  }, [ownerId]);
   
 
   // เลือกไฟล์รูปภาพ
@@ -281,13 +297,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
     closeCommentMenu();
   };
 
-  const handleCommentEdit = (commentId: string) => {
-    closeCommentMenu();
-    const commentToEdit = comments.find((c) => c.id === commentId);
-    if (commentToEdit) {
-      setEditingComment(commentToEdit);
-    }
-  };
+
 
   const handleCommentReport = (commentId: string) => {
     closeCommentMenu();
@@ -369,10 +379,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
   
 
   // ฟังก์ชันจัดการรายงานโพสต์
-  const handleReportPost = () => {
-    console.log("Reporting post...");
-    setMenuOpen(false);
-  };
+
 
   // ดึง userId ของผู้ใช้ปัจจุบัน
   const currentUserId = typeof window !== "undefined" ? localStorage.getItem("userId") : null;
@@ -432,7 +439,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
                         !comment.images[0].toLowerCase().includes("dummy") && (
                           <div
                             className={styles.commentImage}
-                            onClick={() => setPreviewImage(comment.images[0])}
+                            onClick={() => comment.images?.length ? setPreviewImage(comment.images[0]) : null}
                             style={{ cursor: "pointer" }}
                           >
                             <Image
@@ -500,7 +507,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
                                 !reply.images[0].toLowerCase().includes("dummy") && (
                                   <div
                                     className={styles.replyImage}
-                                    onClick={() => setPreviewImage(reply.images[0])}
+                                    onClick={() => comment.images?.length ? setPreviewImage(comment.images[0]) : null}
                                     style={{ cursor: "pointer" }}
                                   >
                                     <Image
@@ -573,17 +580,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
           </div>
         </div>
       )}
-      {editingComment && (
-        <EditCommentModal
-          comment={editingComment}
-          onClose={() => setEditingComment(null)}
-          onUpdateSuccess={(updatedComment) =>
-            setComments((prev) =>
-              prev.map((c) => (c.id === updatedComment.id ? updatedComment : c))
-            )
-          }
-        />
-      )}
+
 
       {isEditModalOpen && (
         <EditPostModal

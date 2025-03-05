@@ -22,7 +22,8 @@ const ForgetPassword = () => {
       });
       const data = await response.json();
       alert(data.message);
-    } catch (error) {
+    } catch (err) {
+      console.error(err); // แสดง error ใน console
       alert("Failed to send reset email. Please try again.");
     }
     setLoading(false);
@@ -34,7 +35,7 @@ const ForgetPassword = () => {
         <div className={styles.icon}></div>
         <h2 className={styles.title}>Trouble logging in?</h2>
         <p className={styles.subtitle}>
-          Enter your email, phone, or username and we'll send you a link to get
+          Enter your email, phone, or username and we&apos;ll send you a link to get
           back into your account.
         </p>
         <form onSubmit={handleSubmit}>
@@ -50,7 +51,7 @@ const ForgetPassword = () => {
             {loading ? "Sending..." : "Send login link"}
           </button>
         </form>
-        <p className={styles.link}>Can't reset your password?</p>
+        <p className={styles.link}>Can&apos;t reset your password?</p>
         <div className={styles.orContainer}>
           <span className={styles.line}></span>
           <span className={styles.orText}>OR</span>

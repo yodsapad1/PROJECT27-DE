@@ -4,19 +4,35 @@ import { useState, useEffect } from "react";
 import Sidebar from "./components/Sidebar/Sidebar";
 import Post from "./components/Post/Post";
 
+interface CommentData {
+  id: string;
+  text: string;
+  user: {
+    id: string;
+    name: string;
+    image: string;
+  };
+}
+
+
 interface PostData {
   id: string;
   title: string;
   content: string;
   images: string[];
-  userId: string; // Owner ID ที่ถูกบันทึกในโพสต์
-  user?: { name: string; image: string }; // เพิ่มข้อมูลเจ้าของโพสต์
+  userId: string;
+  user?: { name: string; image: string };
+  comments?: CommentData[]; // ✅ เพิ่ม comments ลงไป
 }
+
 
 export default function Home() {
   const [posts, setPosts] = useState<PostData[]>([]);
   const { data: session, status } = useSession();
   const [loading, setLoading] = useState(true);
+  
+  const currentUserId = (session?.user as { id?: string })?.id || "";
+
 
   const fetchPosts = async () => {
     setLoading(true);
@@ -63,9 +79,19 @@ export default function Home() {
               title={post.title}
               caption={post.content}
               likes={0}
-              comments={post.comments || []}
+              comments={post.comments
+                ? post.comments.map((comment) => ({
+                    id: comment.id,
+                    text: comment.text, // ✅ เปลี่ยนจาก `content` เป็น `text`
+                    user: comment.user || {
+                      id: "unknown",
+                      name: "Unknown User",
+                      image: "/default-profile.png",
+                    },
+                  }))
+                : []} // ✅ แปลงข้อมูลให้ตรงกัน
               ownerId={post.userId}
-              currentUserId={session?.user?.id || ""}
+              currentUserId={currentUserId}
               onDelete={() => handlePostDeleted(post.id)}
             />
           ))

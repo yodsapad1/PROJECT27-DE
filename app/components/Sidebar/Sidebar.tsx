@@ -116,9 +116,16 @@ const Sidebar: React.FC<SidebarProps> = ({ onNewPost }) => {
         const errorData = await response.json();
         alert("Failed to create post: " + errorData.message);
       }
-    } catch (error: any) {
-      alert("Error: " + error.message);
+    } catch (error: unknown) {
+      let errorMessage = "An unknown error occurred";
+      
+      if (error instanceof Error) {
+        errorMessage = error.message; // ✅ TypeScript รับรู้ว่ามี message
+      }
+    
+      alert("Error: " + errorMessage);
     }
+    
   };
 
   const closeCreatePost = () => {
